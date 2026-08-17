@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Leo Search</title>
+  <desc id="desc">A magnifying glass around a lightning-shaped path</desc>
+  <rect width="256" height="256" rx="56" fill="#176BFF"/>
+  <circle cx="111" cy="105" r="55" fill="none" stroke="#FFFFFF" stroke-width="18"/>
+  <path d="M151 147l52 52" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-width="22"/>
+  <path d="M116 64L88 111h26l-11 39 39-56h-27z" fill="#A9E9FF"/>
+</svg>

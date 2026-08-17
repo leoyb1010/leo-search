@@ -1,0 +1,18 @@
+interface:
+  display_name: "Leo Search"
+  short_description: "Browser-free web and technical research routing"
+  default_prompt: "Use $leo-search to research this with current sources and no browser process."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "leo-search-exa"
+      description: "Current web search and clean URL extraction"
+      transport: "streamable_http"
+      url: "https://mcp.exa.ai/mcp"
+    - type: "mcp"
+      value: "leo-search-context7"
+      description: "Current library documentation and code examples"
+      transport: "streamable_http"
+      url: "https://mcp.context7.com/mcp"
+policy:
+  allow_implicit_invocation: true

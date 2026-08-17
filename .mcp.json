@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "leo-search-exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp"
+    },
+    "leo-search-context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}

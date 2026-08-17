@@ -1,0 +1,36 @@
+{
+  "name": "leo-search",
+  "version": "1.0.0",
+  "description": "Browser-free research for Codex with Exa, Context7, Jina, GitHub and safe local CLI routing.",
+  "author": {
+    "name": "Leo Yuan",
+    "url": "https://github.com/leoyb1010"
+  },
+  "homepage": "https://github.com/leoyb1010/leo-search",
+  "repository": "https://github.com/leoyb1010/leo-search",
+  "license": "MIT",
+  "keywords": [
+    "search",
+    "research",
+    "exa",
+    "context7",
+    "browser-free"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Leo Search",
+    "shortDescription": "Research without spawning browser processes",
+    "longDescription": "Routes current web research, technical documentation, URL extraction, GitHub and media lookups through remote MCP or existing command-line tools. Ordinary search never opens Chrome or installs a headless browser.",
+    "developerName": "Leo Yuan",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/leoyb1010/leo-search",
+    "defaultPrompt": "Research this with current sources using Leo Search, without opening a browser.",
+    "composerIcon": "./assets/leo-search.svg",
+    "brandColor": "#176BFF"
+  },
+  "mcpServers": "./.mcp.json"
+}
