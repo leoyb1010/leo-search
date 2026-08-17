@@ -28,6 +28,29 @@ No API key is required for the default routes. Service-side anonymous limits may
 
 `--deep` also runs Agent Reach's own channel doctor when Agent Reach is installed. Neither mode opens a browser.
 
+The normal check performs real MCP `initialize` requests, validates Jina over HTTP, reports RSS and installed CLI capabilities, and checks for browser-process buildup. The deep check also verifies GitHub authentication.
+
+Run the local regression and lint checks before publishing changes:
+
+```bash
+./tests/doctor_test.sh
+shellcheck scripts/*.sh tests/*.sh
+```
+
+## Optional account-bound channels
+
+Install the optional Agent Reach-compatible tools without importing cookies:
+
+```bash
+agent-reach install --env local --channels all
+```
+
+OpenCLI still requires the user to install and enable its Chrome extension. Twitter, Xueqiu and other logged-in sources require an explicit cookie import or an already authenticated browser session. Never import cookies implicitly, and stop the OpenCLI daemon after each account-bound task:
+
+```bash
+opencli daemon stop
+```
+
 ## Update
 
 ```bash
