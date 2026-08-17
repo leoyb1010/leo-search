@@ -1,6 +1,6 @@
 {
   "name": "leo-search",
-  "version": "1.1.0+codex.20260817052432",
+  "version": "1.1.0+codex.20260817052558",
   "description": "Browser-free research for Codex with Exa, Context7, Jina, GitHub and safe local CLI routing.",
   "author": {
     "name": "Leo Yuan",
