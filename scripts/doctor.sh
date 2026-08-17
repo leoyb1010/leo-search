@@ -39,7 +39,7 @@ endpoint_status() {
   url=$2
   code=$(curl --connect-timeout 5 --max-time 12 --silent --show-error --output /dev/null --write-out '%{http_code}' "$url" 2>/dev/null || printf '000')
   case "$code" in
-    2??|3??)
+    2??)
       printf 'OK   %-14s HTTP %s\n' "$label" "$code"
       ;;
     *)
@@ -61,7 +61,10 @@ mcp_status() {
   body=$(printf '%s\n' "$response" | sed '$d')
   case "$code" in
     2??)
-      if printf '%s' "$body" | grep -q '"protocolVersion"'; then
+      if printf '%s' "$body" | grep -Eq '"jsonrpc"[[:space:]]*:[[:space:]]*"2\.0"' &&
+        printf '%s' "$body" | grep -q '"result"' &&
+        printf '%s' "$body" | grep -q '"protocolVersion"' &&
+        printf '%s' "$body" | grep -q '"serverInfo"'; then
         printf 'OK   %-14s MCP initialize HTTP %s\n' "$label" "$code"
       else
         printf 'WARN %-14s invalid MCP initialize response\n' "$label"
