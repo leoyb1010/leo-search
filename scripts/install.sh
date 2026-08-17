@@ -91,5 +91,17 @@ PY
 )
 
 codex plugin add "leo-search@${marketplace_name}"
+set +e
 "${plugin_dir}/scripts/doctor.sh"
+doctor_rc=$?
+set -e
+case "$doctor_rc" in
+  0) ;;
+  2)
+    echo "Leo Search installed with optional-route warnings; core plugin remains enabled."
+    ;;
+  *)
+    exit "$doctor_rc"
+    ;;
+esac
 echo "Leo Search installed. Start a new Codex task to load its skill and MCP tools."

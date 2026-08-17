@@ -12,7 +12,7 @@ Use the lightest route that can answer accurately. Keep all ordinary searching b
 1. Use remote MCP, HTTP and CLI first.
 2. Never invoke Chrome, an in-app browser, Computer Use, Playwright, Patchright, Puppeteer, Selenium, Crawl4AI or browser-use for an ordinary search.
 3. Never install a browser automation dependency, start a search daemon or create a heartbeat service.
-4. Only use an already-open Chrome session for a logged-in social task when the user explicitly asks for that account-bound task. Reuse the current instance, open the minimum tabs, close every tab opened for the task, and confirm no new headless process remains.
+4. Only use an already-open Chrome session for a logged-in social task when the user explicitly asks for that account-bound task. Reuse the current instance, open the minimum tabs, close every tab opened for the task, stop the OpenCLI daemon after the task, and confirm no new headless process remains.
 5. Limit parallel remote queries to four, retry a failed route at most twice, and fall back to another non-browser route.
 
 ## Route requests
@@ -25,7 +25,7 @@ Use the lightest route that can answer accurately. Keep all ordinary searching b
 | GitHub repositories, stars, releases, commits, issues or code | `gh api`, `gh repo view`, or GitHub MCP | GitHub REST API over HTTP |
 | RSS/Atom | `curl` plus an installed feed parser | Direct feed HTTP |
 | YouTube/Bilibili public metadata or subtitles | Installed `yt-dlp` or Agent Reach CLI | Public HTTP metadata |
-| Logged-in social content | Existing OpenCLI/current Chrome only after explicit user request | Report the login boundary |
+| Logged-in social content | Existing OpenCLI/current Chrome only after explicit user request; then run `opencli daemon stop` | Report the login boundary |
 
 For GitHub recommendations that must be high-star, fetch the current `stargazers_count`, latest release or commit date, license and archived status. Never infer stars from search snippets.
 

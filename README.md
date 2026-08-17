@@ -7,7 +7,7 @@ Leo Search is a Codex plugin for current web and technical research without crea
 - Jina Reader, GitHub CLI, RSS, `yt-dlp` and Agent Reach-compatible CLIs as browser-free fallbacks
 - Existing Chrome only for an explicitly requested logged-in task; tabs opened for the task must be closed
 
-It does not install Playwright, Patchright, Puppeteer, Selenium, Crawl4AI or a heartbeat/daemon.
+It does not install Playwright, Patchright, Puppeteer, Selenium, Crawl4AI or a heartbeat/daemon. If an explicitly requested logged-in task uses the existing OpenCLI bridge, the skill closes its task tabs and stops that bridge afterward.
 
 ## Install on another Mac or Linux device
 
