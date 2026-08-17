@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-plugin_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+plugin_dir=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 expected_dir="${HOME}/plugins/leo-search"
 marketplace_file="${HOME}/.agents/plugins/marketplace.json"
 

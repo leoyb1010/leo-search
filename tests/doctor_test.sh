@@ -1,12 +1,14 @@
 #!/bin/sh
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 temporary=$(mktemp -d "${TMPDIR:-/tmp}/leo-search-doctor-test.XXXXXX")
 trap 'rm -rf "$temporary"' EXIT HUP INT TERM
 
 mkdir "$temporary/bin"
 
+# The single-quoted expressions belong to the generated fake curl script.
+# shellcheck disable=SC2016
 printf '%s\n' '#!/bin/sh' \
   'case "$*" in' \
   '  *mcp.exa.ai*)' \
