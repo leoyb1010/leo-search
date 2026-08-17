@@ -40,4 +40,14 @@ FAKE_EXA_STATUS=200 FAKE_EXA_BODY='{"protocolVersion":"2025-06-18"}' run_doctor
 test "$status" -eq 0
 grep -q 'OK   Exa MCP' "$temporary/output"
 
+printf '%s\n' '#!/bin/sh' 'exit 0' > "$temporary/bin/opencli"
+chmod +x "$temporary/bin/opencli"
+FAKE_EXA_STATUS=200 FAKE_EXA_BODY='{"protocolVersion":"2025-06-18"}' run_doctor
+test "$status" -eq 0
+grep -q 'INFO OpenCLI.*installed; extension readiness is account-bound' "$temporary/output"
+if grep -q 'OK   OpenCLI' "$temporary/output"; then
+  echo 'OpenCLI must not be reported ready from executable presence alone' >&2
+  exit 1
+fi
+
 echo 'doctor tests passed'

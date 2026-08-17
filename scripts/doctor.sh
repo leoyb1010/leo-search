@@ -26,6 +26,14 @@ command_status() {
   fi
 }
 
+opencli_status() {
+  if command -v opencli >/dev/null 2>&1; then
+    printf 'INFO %-14s installed; extension readiness is account-bound\n' 'OpenCLI'
+  else
+    printf 'INFO %-14s not installed (optional)\n' 'OpenCLI'
+  fi
+}
+
 endpoint_status() {
   label=$1
   url=$2
@@ -100,7 +108,7 @@ section "optional local routes"
 command_status "GitHub" gh
 command_status "mcporter" mcporter
 command_status "Agent Reach" agent-reach
-command_status "OpenCLI" opencli
+opencli_status
 command_status "yt-dlp" yt-dlp
 command_status "Bilibili" bili
 rss_parser_status
