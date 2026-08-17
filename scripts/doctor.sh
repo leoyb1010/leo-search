@@ -31,14 +31,50 @@ endpoint_status() {
   url=$2
   code=$(curl --connect-timeout 5 --max-time 12 --silent --show-error --output /dev/null --write-out '%{http_code}' "$url" 2>/dev/null || printf '000')
   case "$code" in
-    000|000000)
-      printf 'WARN %-14s unreachable: %s\n' "$label" "$url"
-      warnings=$((warnings + 1))
-      ;;
-    *)
+    2??|3??)
       printf 'OK   %-14s HTTP %s\n' "$label" "$code"
       ;;
+    *)
+      printf 'WARN %-14s HTTP %s: %s\n' "$label" "$code" "$url"
+      warnings=$((warnings + 1))
+      ;;
   esac
+}
+
+mcp_status() {
+  label=$1
+  url=$2
+  payload='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"leo-search-doctor","version":"1.0"}}}'
+  response=$(curl --connect-timeout 5 --max-time 12 --silent --show-error \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json, text/event-stream' \
+    --data "$payload" --write-out '\n%{http_code}' "$url" 2>/dev/null) || response='000'
+  code=$(printf '%s\n' "$response" | tail -n 1)
+  body=$(printf '%s\n' "$response" | sed '$d')
+  case "$code" in
+    2??)
+      if printf '%s' "$body" | grep -q '"protocolVersion"'; then
+        printf 'OK   %-14s MCP initialize HTTP %s\n' "$label" "$code"
+      else
+        printf 'WARN %-14s invalid MCP initialize response\n' "$label"
+        warnings=$((warnings + 1))
+      fi
+      ;;
+    *)
+      printf 'WARN %-14s MCP initialize HTTP %s: %s\n' "$label" "$code" "$url"
+      warnings=$((warnings + 1))
+      ;;
+  esac
+}
+
+rss_parser_status() {
+  if command -v xmllint >/dev/null 2>&1; then
+    printf 'OK   %-14s %s\n' 'RSS parser' "$(command -v xmllint)"
+  elif command -v python3 >/dev/null 2>&1; then
+    printf 'OK   %-14s Python xml.etree\n' 'RSS parser'
+  else
+    printf 'INFO %-14s not installed (optional)\n' 'RSS parser'
+  fi
 }
 
 headless_processes() {
@@ -56,8 +92,8 @@ automation_controllers() {
 }
 
 section "remote routes"
-endpoint_status "Exa MCP" "https://mcp.exa.ai/mcp"
-endpoint_status "Context7 MCP" "https://mcp.context7.com/mcp"
+mcp_status "Exa MCP" "https://mcp.exa.ai/mcp"
+mcp_status "Context7 MCP" "https://mcp.context7.com/mcp"
 endpoint_status "Jina Reader" "https://r.jina.ai/https://example.com"
 
 section "optional local routes"
@@ -66,6 +102,8 @@ command_status "mcporter" mcporter
 command_status "Agent Reach" agent-reach
 command_status "OpenCLI" opencli
 command_status "yt-dlp" yt-dlp
+command_status "Bilibili" bili
+rss_parser_status
 
 section "resource safety"
 headless=$(headless_processes)
@@ -96,6 +134,16 @@ fi
 if [ "$deep" -eq 1 ] && command -v agent-reach >/dev/null 2>&1; then
   section "Agent Reach doctor"
   agent-reach doctor || warnings=$((warnings + 1))
+fi
+
+if [ "$deep" -eq 1 ] && command -v gh >/dev/null 2>&1; then
+  section "authenticated routes"
+  if gh auth status >/dev/null 2>&1; then
+    echo "OK   GitHub authentication"
+  else
+    echo "WARN GitHub CLI installed but not authenticated"
+    warnings=$((warnings + 1))
+  fi
 fi
 
 printf '\nResult: %s warning(s).\n' "$warnings"
