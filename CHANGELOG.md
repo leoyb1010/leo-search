@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0] - 2026-08-28
+
+### Added
+
+- TinyFish OAuth MCP route for free live web/news/paper search and browser-rendered public URL extraction.
+- TinyFish OAuth discovery validation in the read-only doctor and regression suite.
+
+### Security
+
+- Restrict the personal Codex installation to TinyFish `search` and `fetch_content`; paid browser automation, Vault and saved profiles stay disabled.
+- Keep dynamic rendering remote so ordinary Leo Search requests create no local browser process.
+
 ## [1.1.0] - 2026-08-17
 
 ### Added

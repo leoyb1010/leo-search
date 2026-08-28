@@ -7,6 +7,10 @@
     "leo-search-context7": {
       "type": "http",
       "url": "https://mcp.context7.com/mcp"
+    },
+    "leo-search-tinyfish": {
+      "type": "http",
+      "url": "https://agent.tinyfish.ai/mcp"
     }
   }
 }

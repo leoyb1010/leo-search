@@ -78,6 +78,30 @@ mcp_status() {
   esac
 }
 
+oauth_metadata_status() {
+  label=$1
+  url=$2
+  response=$(curl --connect-timeout 5 --max-time 12 --silent --show-error \
+    --write-out '\n%{http_code}' "$url" 2>/dev/null) || response='000'
+  code=$(printf '%s\n' "$response" | tail -n 1)
+  body=$(printf '%s\n' "$response" | sed '$d')
+  case "$code" in
+    2??)
+      if printf '%s' "$body" | grep -q '"resource"' &&
+        printf '%s' "$body" | grep -q '"authorization_servers"'; then
+        printf 'OK   %-14s OAuth metadata HTTP %s\n' "$label" "$code"
+      else
+        printf 'WARN %-14s invalid OAuth metadata response\n' "$label"
+        warnings=$((warnings + 1))
+      fi
+      ;;
+    *)
+      printf 'WARN %-14s OAuth metadata HTTP %s: %s\n' "$label" "$code" "$url"
+      warnings=$((warnings + 1))
+      ;;
+  esac
+}
+
 rss_parser_status() {
   if command -v xmllint >/dev/null 2>&1; then
     printf 'OK   %-14s %s\n' 'RSS parser' "$(command -v xmllint)"
@@ -105,6 +129,7 @@ automation_controllers() {
 section "remote routes"
 mcp_status "Exa MCP" "https://mcp.exa.ai/mcp"
 mcp_status "Context7 MCP" "https://mcp.context7.com/mcp"
+oauth_metadata_status "TinyFish MCP" "https://agent.tinyfish.ai/.well-known/oauth-protected-resource/mcp"
 endpoint_status "Jina Reader" "https://r.jina.ai/https://example.com"
 
 section "optional local routes"

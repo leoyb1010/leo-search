@@ -1,7 +1,7 @@
 {
   "name": "leo-search",
-  "version": "1.1.0+codex.20260817052558",
-  "description": "Browser-free research for Codex with Exa, Context7, Jina, GitHub and safe local CLI routing.",
+  "version": "1.2.0+codex.20260828083623",
+  "description": "Research for Codex with Exa, TinyFish, Context7, Jina, GitHub and no local browser automation.",
   "author": {
     "name": "Leo Yuan",
     "url": "https://github.com/leoyb1010"
@@ -13,6 +13,7 @@
     "search",
     "research",
     "exa",
+    "tinyfish",
     "context7",
     "browser-free"
   ],
@@ -20,7 +21,7 @@
   "interface": {
     "displayName": "Leo Search",
     "shortDescription": "Research without spawning browser processes",
-    "longDescription": "Routes current web research, technical documentation, URL extraction, GitHub and media lookups through remote MCP or existing command-line tools. Ordinary search never opens Chrome or installs a headless browser.",
+    "longDescription": "Routes current web research, technical documentation, dynamic page extraction, GitHub and media lookups through remote MCP or existing command-line tools. Ordinary search never opens Chrome or installs a local headless browser.",
     "developerName": "Leo Yuan",
     "category": "Productivity",
     "capabilities": [

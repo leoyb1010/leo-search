@@ -14,5 +14,10 @@ dependencies:
       description: "Current library documentation and code examples"
       transport: "streamable_http"
       url: "https://mcp.context7.com/mcp"
+    - type: "mcp"
+      value: "leo-search-tinyfish"
+      description: "Free live search and browser-rendered public URL extraction; OAuth required"
+      transport: "streamable_http"
+      url: "https://agent.tinyfish.ai/mcp"
 policy:
   allow_implicit_invocation: true
