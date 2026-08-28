@@ -37,16 +37,44 @@ opencli_status() {
 endpoint_status() {
   label=$1
   url=$2
-  code=$(curl --connect-timeout 5 --max-time 12 --silent --show-error --output /dev/null --write-out '%{http_code}' "$url" 2>/dev/null || printf '000')
+  route=direct
+  code=$(curl --connect-timeout 5 --max-time 12 --silent --show-error --output /dev/null --write-out '%{http_code}' "$url" 2>/dev/null || true)
+  [ -n "$code" ] || code=000
+  case "$code" in
+    2??) ;;
+    *)
+      proxy=$(system_https_proxy)
+      if [ -n "$proxy" ]; then
+        route=system-proxy
+        code=$(curl --proxy "$proxy" --connect-timeout 5 --max-time 12 --silent --show-error --output /dev/null --write-out '%{http_code}' "$url" 2>/dev/null || true)
+        [ -n "$code" ] || code=000
+      fi
+      ;;
+  esac
   case "$code" in
     2??)
-      printf 'OK   %-14s HTTP %s\n' "$label" "$code"
+      printf 'OK   %-14s HTTP %s via %s\n' "$label" "$code" "$route"
       ;;
     *)
       printf 'WARN %-14s HTTP %s: %s\n' "$label" "$code" "$url"
       warnings=$((warnings + 1))
       ;;
   esac
+}
+
+system_https_proxy() {
+  if command -v scutil >/dev/null 2>&1; then
+    proxy_host=$(scutil --proxy 2>/dev/null | awk '/HTTPSProxy/ {print $3; exit}')
+    proxy_port=$(scutil --proxy 2>/dev/null | awk '/HTTPSPort/ {print $3; exit}')
+    case "$proxy_host" in
+      127.0.0.1|localhost)
+        case "$proxy_port" in
+          ''|*[!0-9]*) ;;
+          *) printf 'http://%s:%s\n' "$proxy_host" "$proxy_port" ;;
+        esac
+        ;;
+    esac
+  fi
 }
 
 mcp_status() {

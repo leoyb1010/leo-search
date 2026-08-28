@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1] - 2026-08-28
+
+### Fixed
+
+- Retry Jina health checks through the configured macOS loopback HTTPS proxy when fake-IP DNS makes direct access fail.
+- Avoid duplicate `000000` status rendering when curl reports a connection failure.
+
 ## [1.2.0] - 2026-08-28
 
 ### Added

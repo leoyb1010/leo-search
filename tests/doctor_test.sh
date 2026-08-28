@@ -20,9 +20,16 @@ printf '%s\n' '#!/bin/sh' \
   '  *oauth-protected-resource*)' \
   '    printf "%s\\n%s" "${FAKE_TINYFISH_BODY:-{\"resource\":\"https://agent.tinyfish.ai/mcp\",\"authorization_servers\":[\"https://clerk.tinyfish.ai\"]}}" "${FAKE_TINYFISH_STATUS:-200}"' \
   '    ;;' \
+  '  *--proxy*) printf "%s" "${FAKE_PROXY_STATUS:-200}" ;;' \
   '  *) printf "%s" "${FAKE_JINA_STATUS:-200}" ;;' \
   'esac' > "$temporary/bin/curl"
 chmod +x "$temporary/bin/curl"
+
+printf '%s\n' '#!/bin/sh' \
+  'if [ "${FAKE_SYSTEM_PROXY:-0}" = "1" ]; then' \
+  '  printf "<dictionary> {\\n  HTTPSProxy : 127.0.0.1\\n  HTTPSPort : 7897\\n}\\n"' \
+  'fi' > "$temporary/bin/scutil"
+chmod +x "$temporary/bin/scutil"
 
 run_doctor() {
   set +e
@@ -57,9 +64,13 @@ FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=200 FAK
 test "$status" -eq 2
 grep -q 'WARN Jina Reader.*HTTP 302' "$temporary/output"
 
+FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=200 FAKE_JINA_STATUS=000 FAKE_SYSTEM_PROXY=1 FAKE_PROXY_STATUS=200 run_doctor
+test "$status" -eq 0
+grep -q 'OK   Jina Reader.*HTTP 200 via system-proxy' "$temporary/output"
+
 printf '%s\n' '#!/bin/sh' 'exit 0' > "$temporary/bin/opencli"
 chmod +x "$temporary/bin/opencli"
-FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=200 FAKE_JINA_STATUS=200 run_doctor
+FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=200 FAKE_JINA_STATUS=200 FAKE_SYSTEM_PROXY=0 run_doctor
 test "$status" -eq 0
 grep -q 'INFO OpenCLI.*installed; extension readiness is account-bound' "$temporary/output"
 if grep -q 'OK   OpenCLI' "$temporary/output"; then

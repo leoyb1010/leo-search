@@ -1,6 +1,6 @@
 {
   "name": "leo-search",
-  "version": "1.2.0+codex.20260828083623",
+  "version": "1.2.1+codex.20260828084808",
   "description": "Research for Codex with Exa, TinyFish, Context7, Jina, GitHub and no local browser automation.",
   "author": {
     "name": "Leo Yuan",

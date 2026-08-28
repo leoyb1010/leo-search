@@ -31,6 +31,8 @@ No API key is required for the default routes. TinyFish uses one-time OAuth and 
 
 The normal check performs real MCP `initialize` requests for Exa and Context7, validates TinyFish's OAuth metadata and Jina over HTTP, reports RSS and installed CLI capabilities, and checks for browser-process buildup. TinyFish authentication itself is verified from Codex after OAuth. The deep check also verifies GitHub authentication.
 
+If direct Jina access fails on macOS because a local proxy uses fake-IP DNS, the doctor retries through the loopback HTTPS proxy already declared by `scutil --proxy`. It never changes proxy settings or accepts a remote proxy address.
+
 For the personal installation, keep TinyFish restricted to the two free read-only tools:
 
 ```toml

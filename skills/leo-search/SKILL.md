@@ -22,7 +22,7 @@ Use the lightest route that can answer accurately. Keep all ordinary searching f
 | --- | --- | --- |
 | Current web, products, people or companies | `leo-search-exa` web search | TinyFish `search`, then built-in HTTP web search |
 | News, research papers, date-bounded or geo/language-filtered search | TinyFish `search` | `leo-search-exa` web search |
-| Full text for a simple known public URL | `curl https://r.jina.ai/http(s)://...` | TinyFish `fetch_content` |
+| Full text for a simple known public URL | `curl https://r.jina.ai/http(s)://...`; on macOS, if direct access fails and `scutil --proxy` declares a loopback HTTPS proxy, retry through that proxy | TinyFish `fetch_content` |
 | JavaScript-heavy pages, up to 10 URLs, CSS-scoped extraction or conditional monitoring | TinyFish `fetch_content` | Jina Reader or Exa extraction |
 | Current library or framework documentation | `leo-search-context7`; resolve library ID before querying docs | Official documentation over HTTP |
 | GitHub repositories, stars, releases, commits, issues or code | `gh api`, `gh repo view`, or GitHub MCP | GitHub REST API over HTTP |
