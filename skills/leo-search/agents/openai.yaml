@@ -1,7 +1,7 @@
 interface:
   display_name: "Leo Search"
-  short_description: "Browser-free web and technical research routing"
-  default_prompt: "Use $leo-search to research this with current sources and no browser process."
+  short_description: "Adaptive current research with evidence"
+  default_prompt: "Use $leo-search to choose Fast, Deep, Discovery or Capability Max research and return current, directly supported evidence."
 dependencies:
   tools:
     - type: "mcp"

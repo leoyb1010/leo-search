@@ -11,6 +11,12 @@ mkdir "$temporary/bin"
 # shellcheck disable=SC2016
 printf '%s\n' '#!/bin/sh' \
   'case "$*" in' \
+  '  *--proxy*mcp.exa.ai*)' \
+  '    printf "event: message\\ndata: %s\\n\\n%s" "${FAKE_EXA_BODY:-{\"jsonrpc\":\"2.0\",\"result\":{\"protocolVersion\":\"2025-06-18\",\"serverInfo\":{\"name\":\"fake\"}}}}" "${FAKE_PROXY_STATUS:-200}"' \
+  '    ;;' \
+  '  *--proxy*oauth-protected-resource*)' \
+  '    printf "%s\\n%s" "${FAKE_TINYFISH_BODY:-{\"resource\":\"https://agent.tinyfish.ai/mcp\",\"authorization_servers\":[\"https://clerk.tinyfish.ai\"]}}" "${FAKE_PROXY_STATUS:-200}"' \
+  '    ;;' \
   '  *mcp.exa.ai*)' \
   '    printf "event: message\\ndata: %s\\n\\n%s" "${FAKE_EXA_BODY:-{\"protocolVersion\":\"2025-06-18\"}}" "${FAKE_EXA_STATUS:-200}"' \
   '    ;;' \
@@ -25,6 +31,8 @@ printf '%s\n' '#!/bin/sh' \
   'esac' > "$temporary/bin/curl"
 chmod +x "$temporary/bin/curl"
 
+# The single-quoted expressions belong to the generated fake scutil script.
+# shellcheck disable=SC2016
 printf '%s\n' '#!/bin/sh' \
   'if [ "${FAKE_SYSTEM_PROXY:-0}" = "1" ]; then' \
   '  printf "<dictionary> {\\n  HTTPSProxy : 127.0.0.1\\n  HTTPSPort : 7897\\n}\\n"' \
@@ -33,7 +41,7 @@ chmod +x "$temporary/bin/scutil"
 
 run_doctor() {
   set +e
-  PATH="$temporary/bin:/usr/bin:/bin" "$root/scripts/doctor.sh" > "$temporary/output" 2>&1
+  LEO_SEARCH_PROXY_FILE="$temporary/no-proxy" PATH="$temporary/bin:/usr/bin:/bin" "$root/scripts/doctor.sh" "$@" > "$temporary/output" 2>&1
   status=$?
   set -e
 }
@@ -68,6 +76,15 @@ FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=200 FAK
 test "$status" -eq 0
 grep -q 'OK   Jina Reader.*HTTP 200 via system-proxy' "$temporary/output"
 
+FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=200 FAKE_JINA_STATUS=000 FAKE_SYSTEM_PROXY=0 FAKE_PROXY_STATUS=200 LEO_SEARCH_PROXY=socks5h://127.0.0.1:7898 run_doctor
+test "$status" -eq 0
+grep -q 'OK   Jina Reader.*HTTP 200 via system-proxy' "$temporary/output"
+
+FAKE_EXA_STATUS=000 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=000 FAKE_JINA_STATUS=200 FAKE_SYSTEM_PROXY=0 FAKE_PROXY_STATUS=200 LEO_SEARCH_PROXY=socks5h://127.0.0.1:7898 run_doctor
+test "$status" -eq 0
+grep -q 'OK   Exa MCP.*via system-proxy' "$temporary/output"
+grep -q 'OK   TinyFish MCP.*via system-proxy' "$temporary/output"
+
 printf '%s\n' '#!/bin/sh' 'exit 0' > "$temporary/bin/opencli"
 chmod +x "$temporary/bin/opencli"
 FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=200 FAKE_JINA_STATUS=200 FAKE_SYSTEM_PROXY=0 run_doctor
@@ -77,5 +94,22 @@ if grep -q 'OK   OpenCLI' "$temporary/output"; then
   echo 'OpenCLI must not be reported ready from executable presence alone' >&2
   exit 1
 fi
+
+FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=200 FAKE_JINA_STATUS=200 FAKE_SYSTEM_PROXY=0 run_doctor --json
+test "$status" -eq 0
+python3 - "$temporary/output" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    report = json.load(handle)
+
+assert report["schemaVersion"] == 1
+assert report["result"] == "ok"
+assert report["warnings"] == 0
+assert report["deep"] is False
+labels = {route["label"] for route in report["routes"]}
+assert {"Exa MCP", "Context7 MCP", "TinyFish MCP", "Jina Reader"} <= labels
+PY
 
 echo 'doctor tests passed'

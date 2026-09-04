@@ -1,7 +1,7 @@
 {
   "name": "leo-search",
-  "version": "1.2.1+codex.20260828084808",
-  "description": "Research for Codex with Exa, TinyFish, Context7, Jina, GitHub and no local browser automation.",
+  "version": "1.3.0+codex.20260829140934",
+  "description": "Adaptive current research with Fast, Deep, Discovery and account-bound Capability Max routes plus evidence normalization.",
   "author": {
     "name": "Leo Yuan",
     "url": "https://github.com/leoyb1010"
@@ -15,13 +15,14 @@
     "exa",
     "tinyfish",
     "context7",
-    "browser-free"
+    "evidence",
+    "deep-research"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Leo Search",
-    "shortDescription": "Research without spawning browser processes",
-    "longDescription": "Routes current web research, technical documentation, dynamic page extraction, GitHub and media lookups through remote MCP or existing command-line tools. Ordinary search never opens Chrome or installs a local headless browser.",
+    "shortDescription": "Adaptive current research with evidence",
+    "longDescription": "Routes Fast, Deep, Discovery and account-bound research across web, technical documentation, GitHub, RSS, media and social channels, then normalizes evidence for current, cited answers.",
     "developerName": "Leo Yuan",
     "category": "Productivity",
     "capabilities": [
@@ -29,7 +30,7 @@
       "Read"
     ],
     "websiteURL": "https://github.com/leoyb1010/leo-search",
-    "defaultPrompt": "Research this with current sources using Leo Search, without opening a browser.",
+    "defaultPrompt": "Research this with current sources using the lightest Leo Search mode that preserves accuracy, recall and direct evidence.",
     "composerIcon": "./assets/leo-search.svg",
     "brandColor": "#176BFF"
   },

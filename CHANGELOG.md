@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0] - 2026-08-29
+
+### Added
+
+- Fast, Deep, Discovery and Capability Max research modes.
+- Machine-readable `doctor.sh --json` output.
+- Evidence-ledger URL normalization, content hashing and exact duplicate removal.
+- Progressive references for research modes, evidence handling and rolling benchmarks.
+
+### Changed
+
+- Treat four concurrent queries as a per-wave limit so Deep/Discovery can continue when evidence gaps remain.
+- Balance claim precision with labeled discovery recall instead of suppressing useful leads.
+
 ## [1.2.1] - 2026-08-28
 
 ### Fixed

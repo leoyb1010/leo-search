@@ -2,11 +2,69 @@
 set -u
 
 deep=0
-if [ "${1:-}" = "--deep" ]; then
-  deep=1
-elif [ "$#" -gt 0 ]; then
-  echo "usage: $0 [--deep]" >&2
-  exit 64
+json=0
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --deep) deep=1 ;;
+    --json) json=1 ;;
+    *) echo "usage: $0 [--deep] [--json]" >&2; exit 64 ;;
+  esac
+  shift
+done
+
+if [ "$json" -eq 1 ]; then
+  if ! command -v python3 >/dev/null 2>&1; then
+    echo "doctor --json requires python3" >&2
+    exit 69
+  fi
+  temporary=$(mktemp "${TMPDIR:-/tmp}/leo-search-doctor.XXXXXX") || exit 70
+  trap 'rm -f "$temporary"' EXIT HUP INT TERM
+  set +e
+  if [ "$deep" -eq 1 ]; then
+    "$0" --deep >"$temporary" 2>&1
+  else
+    "$0" >"$temporary" 2>&1
+  fi
+  status=$?
+  set -e
+  python3 - "$temporary" "$status" "$deep" <<'PY'
+import json
+import re
+import sys
+
+path, status, deep = sys.argv[1], int(sys.argv[2]), bool(int(sys.argv[3]))
+section = None
+routes = []
+warnings = 0
+with open(path, encoding="utf-8") as handle:
+    for raw in handle:
+        line = raw.rstrip("\n")
+        if line.startswith("[") and line.endswith("]"):
+            section = line[1:-1]
+            continue
+        result = re.match(r"^Result: (\d+) warning", line)
+        if result:
+            warnings = int(result.group(1))
+            continue
+        match = re.match(r"^(OK|WARN|INFO)\s+(.+?)\s{2,}(.*)$", line)
+        if match:
+            state, label, detail = match.groups()
+            routes.append({
+                "section": section,
+                "label": label.strip(),
+                "status": {"OK": "ok", "WARN": "warning", "INFO": "info"}[state],
+                "detail": detail.strip(),
+            })
+
+print(json.dumps({
+    "schemaVersion": 1,
+    "result": "ok" if status == 0 else "warning",
+    "warnings": warnings,
+    "deep": deep,
+    "routes": routes,
+}, ensure_ascii=False, indent=2))
+PY
+  exit "$status"
 fi
 
 warnings=0
@@ -63,9 +121,24 @@ endpoint_status() {
 }
 
 system_https_proxy() {
-  if command -v scutil >/dev/null 2>&1; then
-    proxy_host=$(scutil --proxy 2>/dev/null | awk '/HTTPSProxy/ {print $3; exit}')
-    proxy_port=$(scutil --proxy 2>/dev/null | awk '/HTTPSPort/ {print $3; exit}')
+  if [ -n "${LEO_SEARCH_PROXY:-}" ]; then
+    printf '%s\n' "$LEO_SEARCH_PROXY"
+    return
+  fi
+  proxy_file=${LEO_SEARCH_PROXY_FILE:-"$HOME/.config/leo-search/proxy"}
+  if [ -f "$proxy_file" ]; then
+    proxy_value=$(sed -n '1p' "$proxy_file")
+    case "$proxy_value" in
+      http://*|https://*|socks5://*|socks5h://*) printf '%s\n' "$proxy_value"; return ;;
+    esac
+  fi
+  scutil_command=$(command -v scutil 2>/dev/null || true)
+  if [ -z "$scutil_command" ] && [ -x /usr/sbin/scutil ]; then
+    scutil_command=/usr/sbin/scutil
+  fi
+  if [ -n "$scutil_command" ]; then
+    proxy_host=$("$scutil_command" --proxy 2>/dev/null | awk '/HTTPSProxy/ {print $3; exit}')
+    proxy_port=$("$scutil_command" --proxy 2>/dev/null | awk '/HTTPSPort/ {print $3; exit}')
     case "$proxy_host" in
       127.0.0.1|localhost)
         case "$proxy_port" in
@@ -80,6 +153,7 @@ system_https_proxy() {
 mcp_status() {
   label=$1
   url=$2
+  route=direct
   payload='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"leo-search-doctor","version":"1.0"}}}'
   response=$(curl --connect-timeout 5 --max-time 12 --silent --show-error \
     --header 'Content-Type: application/json' \
@@ -88,12 +162,27 @@ mcp_status() {
   code=$(printf '%s\n' "$response" | tail -n 1)
   body=$(printf '%s\n' "$response" | sed '$d')
   case "$code" in
+    2??) ;;
+    *)
+      proxy=$(system_https_proxy)
+      if [ -n "$proxy" ]; then
+        route=system-proxy
+        response=$(curl --proxy "$proxy" --connect-timeout 5 --max-time 12 --silent --show-error \
+          --header 'Content-Type: application/json' \
+          --header 'Accept: application/json, text/event-stream' \
+          --data "$payload" --write-out '\n%{http_code}' "$url" 2>/dev/null) || response='000'
+        code=$(printf '%s\n' "$response" | tail -n 1)
+        body=$(printf '%s\n' "$response" | sed '$d')
+      fi
+      ;;
+  esac
+  case "$code" in
     2??)
       if printf '%s' "$body" | grep -Eq '"jsonrpc"[[:space:]]*:[[:space:]]*"2\.0"' &&
         printf '%s' "$body" | grep -q '"result"' &&
         printf '%s' "$body" | grep -q '"protocolVersion"' &&
         printf '%s' "$body" | grep -q '"serverInfo"'; then
-        printf 'OK   %-14s MCP initialize HTTP %s\n' "$label" "$code"
+        printf 'OK   %-14s MCP initialize HTTP %s via %s\n' "$label" "$code" "$route"
       else
         printf 'WARN %-14s invalid MCP initialize response\n' "$label"
         warnings=$((warnings + 1))
@@ -109,15 +198,29 @@ mcp_status() {
 oauth_metadata_status() {
   label=$1
   url=$2
+  route=direct
   response=$(curl --connect-timeout 5 --max-time 12 --silent --show-error \
     --write-out '\n%{http_code}' "$url" 2>/dev/null) || response='000'
   code=$(printf '%s\n' "$response" | tail -n 1)
   body=$(printf '%s\n' "$response" | sed '$d')
   case "$code" in
+    2??) ;;
+    *)
+      proxy=$(system_https_proxy)
+      if [ -n "$proxy" ]; then
+        route=system-proxy
+        response=$(curl --proxy "$proxy" --connect-timeout 5 --max-time 12 --silent --show-error \
+          --write-out '\n%{http_code}' "$url" 2>/dev/null) || response='000'
+        code=$(printf '%s\n' "$response" | tail -n 1)
+        body=$(printf '%s\n' "$response" | sed '$d')
+      fi
+      ;;
+  esac
+  case "$code" in
     2??)
       if printf '%s' "$body" | grep -q '"resource"' &&
         printf '%s' "$body" | grep -q '"authorization_servers"'; then
-        printf 'OK   %-14s OAuth metadata HTTP %s\n' "$label" "$code"
+        printf 'OK   %-14s OAuth metadata HTTP %s via %s\n' "$label" "$code" "$route"
       else
         printf 'WARN %-14s invalid OAuth metadata response\n' "$label"
         warnings=$((warnings + 1))
