@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-09-04T22:37:46Z",
+  "scope": "public_retrieval_contracts",
+  "semantic_accuracy": "not_scored",
+  "passed": 2,
+  "total": 2,
+  "cases": [
+    {
+      "id": "exa-03",
+      "route": "jina",
+      "question": "Python official pathlib Path documentation",
+      "stage": "retrieval",
+      "status": "pass",
+      "fallback_for": "exa",
+      "characters": 91503,
+      "source_urls": [
+        "https://docs.python.org/3/library/pathlib.html"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 6630
+    },
+    {
+      "id": "exa-05",
+      "route": "jina",
+      "question": "Git official git diff documentation",
+      "stage": "retrieval",
+      "status": "pass",
+      "fallback_for": "exa",
+      "characters": 40973,
+      "source_urls": [
+        "https://git-scm.com/docs/git-diff"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 6318
+    }
+  ],
+  "requests": {
+    "used": 4,
+    "limit": 4,
+    "reused": 0
+  },
+  "boundaries": [
+    "TinyFish needs a host-authenticated search call; OAuth metadata is not proof.",
+    "Account-bound social sources and answer-level accuracy are not measured."
+  ]
+}

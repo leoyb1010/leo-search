@@ -3,7 +3,7 @@
 Leo Search is a Codex plugin for current web and technical research with four adaptive modes: Fast, Deep, Discovery and Capability Max. It bundles remote MCP routes, evidence normalization and a routing skill:
 
 - Exa for current web search and clean URL extraction
-- TinyFish for free live web/news/paper search and browser-rendered public URL extraction
+- TinyFish for live web/news/paper search and browser-rendered public URL extraction
 - Context7 for current library documentation
 - Jina Reader, GitHub CLI, RSS, `yt-dlp` and Agent Reach-compatible CLIs as browser-free fallbacks
 - Agent Reach-compatible public and account-bound channels when requested
@@ -25,7 +25,7 @@ Expose the same canonical skill to other local Agents without creating another v
 python3 ~/plugins/leo-search/scripts/install_portable.py
 ```
 
-No API key is required for the default routes. TinyFish uses one-time OAuth and requires a TinyFish account; Search and Fetch are free. Authenticate from Codex's MCP server settings when prompted. Service-side limits may apply, and credentials remain outside this repository.
+No API key is required for the default routes. TinyFish requires a valid OAuth session and a TinyFish account; reauthorization may be needed when a refresh token expires or is revoked. Provider plans and limits may change. Authenticate from Codex's MCP server settings when prompted. Service-side limits may apply, and credentials remain outside this repository.
 
 ## Verify
 
@@ -37,7 +37,7 @@ No API key is required for the default routes. TinyFish uses one-time OAuth and 
 
 `--deep` also runs Agent Reach's own channel doctor when Agent Reach is installed. Neither mode opens a browser.
 
-The normal check performs real MCP `initialize` requests for Exa and Context7, validates TinyFish's OAuth metadata and Jina over HTTP, reports RSS and installed CLI capabilities, and checks for browser-process buildup. `--json` returns the same route state as structured data. TinyFish authentication itself is verified from Codex after OAuth. The deep check also verifies GitHub authentication.
+The normal check performs real MCP `initialize` requests for Exa and Context7, validates TinyFish's OAuth metadata and Jina over HTTP, reports RSS and installed CLI capabilities, and checks for browser-process buildup. `--json` schema v2 explicitly reports connectivity-only scope and includes resource checks. OAuth metadata is INFO, never retrieval proof. TinyFish authentication itself is verified from Codex after OAuth. The deep check also verifies GitHub authentication.
 
 If direct Jina access fails on macOS because a local proxy uses fake-IP DNS, the doctor retries through the loopback HTTPS proxy already declared by `scutil --proxy`. It never changes proxy settings or accepts a remote proxy address.
 
@@ -108,7 +108,7 @@ printf '%s\n' '{"url":"https://example.com/story?utm_source=x","title":"Story"}'
   ~/plugins/leo-search/scripts/evidence_ledger.py
 ```
 
-The ledger canonicalizes URLs, removes tracking parameters, hashes content and collapses exact duplicates. Researchers still identify mirrors, syndication and shared upstream sources.
+The ledger canonicalizes URLs, removes tracking parameters and collapses exact URL/content duplicates. It preserves source links, claim IDs and conflicting support annotations, and groups identical content/shared upstream reporting. A separate group is not proof of independent reporting.
 
 On a restricted host, keep a host-specific proxy URL in `~/.config/leo-search/proxy` and run CLI fallbacks through:
 
@@ -125,3 +125,26 @@ Queries and fetched URLs sent to remote services are processed by those provider
 ## License
 
 MIT
+
+## 1.4.0: bounded retrieval and real readiness
+
+```sh
+# Normal task health: connectivity only, no research quota consumed by search calls
+./scripts/doctor.sh --json
+# Three public retrieval probes, at most 8 requests, in-run response reuse
+python3 scripts/smoke.py --output benchmarks/results/smoke.json
+# Native tool visibility, using existing host credentials without exposing them
+python3 scripts/codex_probe.py
+# Exactly one TinyFish tool call; no model turn and no persisted task
+python3 scripts/codex_probe.py --search
+# Release benchmark only, not for each user question
+python3 scripts/smoke.py --benchmark --max-requests 28 --output benchmarks/results/retrieval.json
+# Rerun only a named failure, or use its known direct official fallback
+python3 scripts/smoke.py --case exa-03 --fallback-only --max-requests 2
+```
+
+Fast normally starts with one useful query/read and a working allowance of four remote operations. Deep/Discovery extend only for named evidence gaps. User-specified budgets are hard limits. Do not repeatedly retry authentication errors, duplicate searches or already-fetched pages. Preserve Chinese/local-source needs, exact versions, freshness and independent-source requirements.
+
+The runner counts **network requests**, not paid API units or tokens. Reuse is process-local; no cross-user or stale persistent cache is created. Benchmark checks measure retrieval contracts (content, source, topic), not answer-level accuracy. See `benchmarks/README.md` for measured results and limits.
+
+For plugin updates, use the installed plugin-creator cachebuster/validation helpers and `codex plugin add leo-search@personal` against the existing local marketplace. The historical 1.3.0 working copy is preserved in Git before 1.4.0 changes.

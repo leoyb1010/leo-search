@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-09-04T22:35:02Z",
+  "scope": "public_retrieval_contracts",
+  "semantic_accuracy": "not_scored",
+  "passed": 0,
+  "total": 2,
+  "cases": [
+    {
+      "id": "jina-1",
+      "route": "jina",
+      "question": "Read the example domain page",
+      "stage": "retrieval",
+      "status": "fail",
+      "characters": 1140,
+      "source_urls": [],
+      "cached_snapshot": true,
+      "checks": {
+        "nonempty": true,
+        "source_present": false,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 5675
+    },
+    {
+      "id": "jina-2",
+      "route": "jina",
+      "question": "Find documentation purpose of example.com",
+      "stage": "retrieval",
+      "status": "fail",
+      "characters": 1140,
+      "source_urls": [],
+      "cached_snapshot": true,
+      "checks": {
+        "nonempty": true,
+        "source_present": false,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 5675
+    }
+  ],
+  "requests": {
+    "used": 2,
+    "limit": 8,
+    "reused": 1
+  },
+  "boundaries": [
+    "TinyFish needs a host-authenticated search call; OAuth metadata is not proof.",
+    "Account-bound social sources and answer-level accuracy are not measured."
+  ]
+}

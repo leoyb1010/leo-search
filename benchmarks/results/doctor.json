@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 2,
+  "scope": "connectivity_only",
+  "retrieval_verified": false,
+  "result": "ok",
+  "warnings": 0,
+  "deep": false,
+  "routes": [
+    {
+      "section": "remote routes",
+      "label": "Exa MCP",
+      "status": "ok",
+      "detail": "MCP initialize HTTP 200 via direct",
+      "stage": "initialize",
+      "retrieval_verified": false
+    },
+    {
+      "section": "remote routes",
+      "label": "Context7 MCP",
+      "status": "ok",
+      "detail": "MCP initialize HTTP 200 via direct",
+      "stage": "initialize",
+      "retrieval_verified": false
+    },
+    {
+      "section": "remote routes",
+      "label": "TinyFish MCP",
+      "status": "info",
+      "detail": "OAuth metadata HTTP 200 via direct; authentication and retrieval unverified",
+      "stage": "oauth_metadata",
+      "retrieval_verified": false
+    },
+    {
+      "section": "remote routes",
+      "label": "Jina Reader",
+      "status": "ok",
+      "detail": "HTTP 200 via direct",
+      "stage": "http",
+      "retrieval_verified": false
+    },
+    {
+      "section": "optional local routes",
+      "label": "GitHub",
+      "status": "ok",
+      "detail": "/opt/homebrew/bin/gh",
+      "stage": "installed",
+      "retrieval_verified": false
+    },
+    {
+      "section": "optional local routes",
+      "label": "mcporter",
+      "status": "ok",
+      "detail": "/opt/homebrew/bin/mcporter",
+      "stage": "installed",
+      "retrieval_verified": false
+    },
+    {
+      "section": "optional local routes",
+      "label": "Agent Reach",
+      "status": "ok",
+      "detail": "$HOME/.local/bin/agent-reach",
+      "stage": "installed",
+      "retrieval_verified": false
+    },
+    {
+      "section": "optional local routes",
+      "label": "OpenCLI",
+      "status": "info",
+      "detail": "installed; extension readiness is account-bound",
+      "stage": "installed",
+      "retrieval_verified": false
+    },
+    {
+      "section": "optional local routes",
+      "label": "yt-dlp",
+      "status": "ok",
+      "detail": "$HOME/.local/bin/yt-dlp",
+      "stage": "installed",
+      "retrieval_verified": false
+    },
+    {
+      "section": "optional local routes",
+      "label": "Bilibili",
+      "status": "ok",
+      "detail": "$HOME/.local/bin/bili",
+      "stage": "installed",
+      "retrieval_verified": false
+    },
+    {
+      "section": "optional local routes",
+      "label": "RSS parser",
+      "status": "ok",
+      "detail": "/usr/bin/xmllint",
+      "stage": "installed",
+      "retrieval_verified": false
+    },
+    {
+      "section": "resource safety",
+      "label": "browser processes",
+      "status": "ok",
+      "stage": "resource_check",
+      "detail": "no Chrome-for-Testing or headless-Chromium browser process"
+    },
+    {
+      "section": "resource safety",
+      "label": "browser controllers",
+      "status": "info",
+      "stage": "resource_check",
+      "detail": "browser-capable controller exists but has no browser child:"
+    },
+    {
+      "section": "resource safety",
+      "label": "search jobs",
+      "status": "ok",
+      "stage": "resource_check",
+      "detail": "no Leo Search or Agent Reach heartbeat job"
+    }
+  ],
+  "agent_reach": null
+}

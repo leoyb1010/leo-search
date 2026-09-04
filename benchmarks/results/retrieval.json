@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-09-04T22:36:30Z",
+  "scope": "public_retrieval_contracts",
+  "semantic_accuracy": "not_scored",
+  "passed": 18,
+  "total": 20,
+  "cases": [
+    {
+      "id": "exa-01",
+      "route": "exa",
+      "question": "MCP official tools list call specification",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 8050,
+      "source_urls": [
+        "https://github.com/modelcontextprotocol/docs/blob/main/docs/concepts/tools.mdx",
+        "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/ff960c9e/docs/specification/2025-06-18/server/tools.mdx",
+        "https://modelcontextprotocol.io/specification/2026-07-28/server/tools"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 1620
+    },
+    {
+      "id": "exa-02",
+      "route": "exa",
+      "question": "React official useEffect cleanup documentation",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 16824,
+      "source_urls": [
+        "https://react.dev/learn/synchronizing-with-effects",
+        "https://react.dev/reference/react/useEffect",
+        "https://react.dev/reference/react/useEffect.md"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 2694
+    },
+    {
+      "id": "exa-03",
+      "route": "exa",
+      "question": "Python official pathlib Path documentation",
+      "stage": "retrieval",
+      "status": "unavailable",
+      "tools_visible": 2,
+      "reason": "HTTP request failed (curl exit 22)",
+      "latency_ms": 1238
+    },
+    {
+      "id": "exa-04",
+      "route": "exa",
+      "question": "SQLite official transactions documentation",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 16797,
+      "source_urls": [
+        "https://sqlite.org/atomiccommit.html",
+        "https://sqlite.org/isolation.html",
+        "https://www.sqlite.org/lang_transaction.html"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 2265
+    },
+    {
+      "id": "exa-05",
+      "route": "exa",
+      "question": "Git official git diff documentation",
+      "stage": "retrieval",
+      "status": "unavailable",
+      "tools_visible": 2,
+      "reason": "HTTP request failed (curl exit 22)",
+      "latency_ms": 561
+    },
+    {
+      "id": "exa-06",
+      "route": "exa",
+      "question": "MDN CSS prefers-reduced-motion reference",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 5703,
+      "source_urls": [
+        "https://css-tricks.com/almanac/rules/m/media/prefers-reduced-motion/",
+        "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Media_queries/Using_for_accessibility",
+        "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 1375
+    },
+    {
+      "id": "exa-07",
+      "route": "exa",
+      "question": "W3C WCAG 2.2 focus not obscured official",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 15012,
+      "source_urls": [
+        "https://www.w3.org/TR/WCAG22/",
+        "https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-enhanced.html",
+        "https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 1742
+    },
+    {
+      "id": "exa-08",
+      "route": "exa",
+      "question": "Rust official ownership book",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 6104,
+      "source_urls": [
+        "https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html",
+        "https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html",
+        "https://doc.rust-lang.org/stable/book/ch04-01-what-is-ownership.html"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 1360
+    },
+    {
+      "id": "exa-09",
+      "route": "exa",
+      "question": "Swift official documentation value types",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 3749,
+      "source_urls": [
+        "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/classesandstructures/",
+        "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/declarations/",
+        "https://swift.org/documentation/articles/value-and-reference-types.html"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 1504
+    },
+    {
+      "id": "exa-10",
+      "route": "exa",
+      "question": "Vue 官方 组合式 API 文档",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 3239,
+      "source_urls": [
+        "https://cn.vuejs.org/api/",
+        "https://www.vueframework.com/docs/v3/cn/api/composition-api.html",
+        "https://zh-hk.vuejs.org/api/composition-api-setup"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 1324
+    },
+    {
+      "id": "exa-11",
+      "route": "exa",
+      "question": "Python 官方 JSON 序列化 文档",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 6071,
+      "source_urls": [
+        "https://docs.python.org/3/library/json.html",
+        "https://docs.python.org/zh-cn/3.9/library/json.html",
+        "https://docs.pythonlang.cn/3/library/json.html"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 1683
+    },
+    {
+      "id": "exa-12",
+      "route": "exa",
+      "question": "GitHub 官方 release API 文档",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 6909,
+      "source_urls": [
+        "https://docs.github.com/en/rest/releases/releases",
+        "https://docs.github.com/en/rest/releases/releases?apiVersion=2026-03-10&apiversion=2022-11-28%2F1000",
+        "https://docs.github.com/zh/enterprise-server@3.21/rest/releases/releases"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 1579
+    },
+    {
+      "id": "docs-react",
+      "route": "context7",
+      "question": "useEffect cleanup function timing",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "library_id": "/reactjs/react.dev",
+      "characters": 4663,
+      "source_urls": [
+        "https://github.com/reactjs/react.dev/blob/main/src/content/learn/separating-events-from-effects.md",
+        "https://github.com/reactjs/react.dev/blob/main/src/content/learn/synchronizing-with-effects.md",
+        "https://github.com/reactjs/react.dev/blob/main/src/content/reference/react/useEffect.md"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 5637
+    },
+    {
+      "id": "docs-vue",
+      "route": "context7",
+      "question": "computed property caching",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "library_id": "/websites/vuejs",
+      "characters": 2266,
+      "source_urls": [
+        "https://vuejs.org/guide/best-practices/performance.html",
+        "https://vuejs.org/guide/essentials/computed"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 4453
+    },
+    {
+      "id": "docs-nextjs",
+      "route": "context7",
+      "question": "App Router loading UI",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "library_id": "/vercel/next.js",
+      "characters": 1287,
+      "source_urls": [
+        "https://github.com/vercel/next.js/blob/canary/docs/01-app/01-getting-started/04-linking-and-navigating.mdx",
+        "https://github.com/vercel/next.js/blob/canary/docs/01-app/01-getting-started/06-fetching-data.mdx",
+        "https://github.com/vercel/next.js/blob/canary/docs/01-app/03-api-reference/03-file-conventions/loading.mdx"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 4386
+    },
+    {
+      "id": "docs-python",
+      "route": "context7",
+      "question": "pathlib Path methods",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "library_id": "/python/cpython",
+      "characters": 3333,
+      "source_urls": [
+        "https://github.com/python/cpython/blob/main/Doc/library/pathlib.rst",
+        "https://github.com/python/cpython/blob/main/Doc/library/zipfile.rst"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 4425
+    },
+    {
+      "id": "jina-1",
+      "route": "jina",
+      "question": "Read the example domain page",
+      "stage": "retrieval",
+      "status": "pass",
+      "characters": 367,
+      "source_urls": [
+        "https://example.com/"
+      ],
+      "cached_snapshot": true,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 5588
+    },
+    {
+      "id": "jina-2",
+      "route": "jina",
+      "question": "Find documentation purpose of example.com",
+      "stage": "retrieval",
+      "status": "pass",
+      "characters": 367,
+      "source_urls": [
+        "https://example.com/"
+      ],
+      "cached_snapshot": true,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 4770
+    },
+    {
+      "id": "jina-3",
+      "route": "jina",
+      "question": "Read the official React useEffect reference",
+      "stage": "retrieval",
+      "status": "pass",
+      "characters": 47998,
+      "source_urls": [
+        "https://react.dev/reference/react/useEffect"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 8115
+    },
+    {
+      "id": "jina-4",
+      "route": "jina",
+      "question": "Inspect cleanup guidance in the same React reference",
+      "stage": "retrieval",
+      "status": "pass",
+      "characters": 47998,
+      "source_urls": [
+        "https://react.dev/reference/react/useEffect"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 7931
+    }
+  ],
+  "requests": {
+    "used": 26,
+    "limit": 28,
+    "reused": 16
+  },
+  "boundaries": [
+    "TinyFish needs a host-authenticated search call; OAuth metadata is not proof.",
+    "Account-bound social sources and answer-level accuracy are not measured."
+  ]
+}

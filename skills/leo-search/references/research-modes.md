@@ -4,7 +4,7 @@ Choose the smallest mode that can satisfy the evidence target. A wave may run up
 
 ## Fast
 
-Use for direct facts, current product/company questions and ordinary technical lookups. Query one primary route and one genuinely independent validator when the claim matters. Stop when the answer, freshness and citation target are met.
+Use for direct facts, current product/company questions and ordinary technical lookups. Start with one primary route; add an independent validator when the claim is contested, promotional or high-impact. Reuse known results and stop as soon as the evidence target is met. Stop when the answer, freshness and citation target are met.
 
 ## Deep
 
@@ -24,3 +24,5 @@ Use for emerging, niche or cross-domain questions where recall matters. Broaden 
 ## Capability Max
 
 Use when public routes cannot reach an explicitly requested account-bound or highly dynamic source. With user authorization, reuse an available connector, remote extraction worker or already-open authenticated session for read-only research. This mode expands reach; it does not turn Leo Search into a posting or account-management tool.
+
+All modes follow [request-efficiency.md](request-efficiency.md). Do not run the benchmark as part of ordinary research.

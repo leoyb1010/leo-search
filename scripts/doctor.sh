@@ -35,6 +35,7 @@ import sys
 path, status, deep = sys.argv[1], int(sys.argv[2]), bool(int(sys.argv[3]))
 section = None
 routes = []
+agent_lines = []
 warnings = 0
 with open(path, encoding="utf-8") as handle:
     for raw in handle:
@@ -42,11 +43,24 @@ with open(path, encoding="utf-8") as handle:
         if line.startswith("[") and line.endswith("]"):
             section = line[1:-1]
             continue
+        if section == "Agent Reach doctor" and not line.startswith("Result:"):
+            agent_lines.append(line)
+            continue
         result = re.match(r"^Result: (\d+) warning", line)
         if result:
             warnings = int(result.group(1))
             continue
         match = re.match(r"^(OK|WARN|INFO)\s+(.+?)\s{2,}(.*)$", line)
+        if not match and section == "resource safety":
+            match = re.match(r"^(OK|WARN|INFO)\s+(.+)$", line)
+            if match:
+                state, detail = match.groups()
+                label = ("browser processes" if "browser-automation processes" in detail or "headless" in detail
+                         else "browser controllers" if "controller" in detail else "search jobs")
+                routes.append({"section": section, "label": label,
+                               "status": {"OK": "ok", "WARN": "warning", "INFO": "info"}[state],
+                               "stage": "resource_check", "detail": detail})
+            continue
         if match:
             state, label, detail = match.groups()
             routes.append({
@@ -54,14 +68,26 @@ with open(path, encoding="utf-8") as handle:
                 "label": label.strip(),
                 "status": {"OK": "ok", "WARN": "warning", "INFO": "info"}[state],
                 "detail": detail.strip(),
+                "stage": ("oauth_metadata" if "OAuth metadata" in detail else
+                          "initialize" if "initialize" in detail else
+                          "http" if detail.startswith("HTTP") else "installed"),
+                "retrieval_verified": False,
             })
 
+try:
+    agent_report = json.loads("\n".join(agent_lines)) if agent_lines else None
+except json.JSONDecodeError:
+    agent_report = {"status": "unparsed", "detail": "Agent Reach did not return valid JSON"}
+
 print(json.dumps({
-    "schemaVersion": 1,
+    "schemaVersion": 2,
+    "scope": "connectivity_only",
+    "retrieval_verified": False,
     "result": "ok" if status == 0 else "warning",
     "warnings": warnings,
     "deep": deep,
     "routes": routes,
+    "agent_reach": agent_report,
 }, ensure_ascii=False, indent=2))
 PY
   exit "$status"
@@ -220,7 +246,7 @@ oauth_metadata_status() {
     2??)
       if printf '%s' "$body" | grep -q '"resource"' &&
         printf '%s' "$body" | grep -q '"authorization_servers"'; then
-        printf 'OK   %-14s OAuth metadata HTTP %s via %s\n' "$label" "$code" "$route"
+        printf 'INFO %-14s OAuth metadata HTTP %s via %s; authentication and retrieval unverified\n' "$label" "$code" "$route"
       else
         printf 'WARN %-14s invalid OAuth metadata response\n' "$label"
         warnings=$((warnings + 1))
@@ -300,13 +326,13 @@ fi
 
 if [ "$deep" -eq 1 ] && command -v agent-reach >/dev/null 2>&1; then
   section "Agent Reach doctor"
-  agent-reach doctor || warnings=$((warnings + 1))
+  agent-reach doctor --json || warnings=$((warnings + 1))
 fi
 
 if [ "$deep" -eq 1 ] && command -v gh >/dev/null 2>&1; then
   section "authenticated routes"
-  if gh auth status >/dev/null 2>&1; then
-    echo "OK   GitHub authentication"
+  if gh api user --jq .login >/dev/null 2>&1; then
+    echo "OK   GitHub API authentication"
   else
     echo "WARN GitHub CLI installed but not authenticated"
     warnings=$((warnings + 1))

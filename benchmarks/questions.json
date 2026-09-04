@@ -1,0 +1,172 @@
+[
+  {
+    "id": "exa-01",
+    "route": "exa",
+    "question": "MCP official tools list call specification",
+    "keywords": [
+      "MCP"
+    ]
+  },
+  {
+    "id": "exa-02",
+    "route": "exa",
+    "question": "React official useEffect cleanup documentation",
+    "keywords": [
+      "useEffect"
+    ]
+  },
+  {
+    "id": "exa-03",
+    "route": "exa",
+    "question": "Python official pathlib Path documentation",
+    "keywords": [
+      "Path"
+    ],
+    "fallback_url": "https://docs.python.org/3/library/pathlib.html"
+  },
+  {
+    "id": "exa-04",
+    "route": "exa",
+    "question": "SQLite official transactions documentation",
+    "keywords": [
+      "transaction"
+    ]
+  },
+  {
+    "id": "exa-05",
+    "route": "exa",
+    "question": "Git official git diff documentation",
+    "keywords": [
+      "git"
+    ],
+    "fallback_url": "https://git-scm.com/docs/git-diff"
+  },
+  {
+    "id": "exa-06",
+    "route": "exa",
+    "question": "MDN CSS prefers-reduced-motion reference",
+    "keywords": [
+      "motion"
+    ]
+  },
+  {
+    "id": "exa-07",
+    "route": "exa",
+    "question": "W3C WCAG 2.2 focus not obscured official",
+    "keywords": [
+      "focus"
+    ]
+  },
+  {
+    "id": "exa-08",
+    "route": "exa",
+    "question": "Rust official ownership book",
+    "keywords": [
+      "ownership"
+    ]
+  },
+  {
+    "id": "exa-09",
+    "route": "exa",
+    "question": "Swift official documentation value types",
+    "keywords": [
+      "Swift"
+    ]
+  },
+  {
+    "id": "exa-10",
+    "route": "exa",
+    "question": "Vue 官方 组合式 API 文档",
+    "keywords": [
+      "Vue"
+    ]
+  },
+  {
+    "id": "exa-11",
+    "route": "exa",
+    "question": "Python 官方 JSON 序列化 文档",
+    "keywords": [
+      "json"
+    ]
+  },
+  {
+    "id": "exa-12",
+    "route": "exa",
+    "question": "GitHub 官方 release API 文档",
+    "keywords": [
+      "release"
+    ]
+  },
+  {
+    "id": "docs-react",
+    "route": "context7",
+    "library": "React",
+    "question": "useEffect cleanup function timing",
+    "keywords": [
+      "cleanup"
+    ]
+  },
+  {
+    "id": "docs-vue",
+    "route": "context7",
+    "library": "Vue",
+    "question": "computed property caching",
+    "keywords": [
+      "computed"
+    ]
+  },
+  {
+    "id": "docs-nextjs",
+    "route": "context7",
+    "library": "Next.js",
+    "question": "App Router loading UI",
+    "keywords": [
+      "loading"
+    ]
+  },
+  {
+    "id": "docs-python",
+    "route": "context7",
+    "library": "Python",
+    "question": "pathlib Path methods",
+    "keywords": [
+      "Path"
+    ]
+  },
+  {
+    "id": "jina-1",
+    "route": "jina",
+    "url": "https://example.com",
+    "question": "Read the example domain page",
+    "keywords": [
+      "domain"
+    ]
+  },
+  {
+    "id": "jina-2",
+    "route": "jina",
+    "url": "https://example.com",
+    "question": "Find documentation purpose of example.com",
+    "keywords": [
+      "documentation"
+    ]
+  },
+  {
+    "id": "jina-3",
+    "route": "jina",
+    "url": "https://react.dev/reference/react/useEffect",
+    "question": "Read the official React useEffect reference",
+    "keywords": [
+      "useEffect"
+    ]
+  },
+  {
+    "id": "jina-4",
+    "route": "jina",
+    "url": "https://react.dev/reference/react/useEffect",
+    "question": "Inspect cleanup guidance in the same React reference",
+    "keywords": [
+      "cleanup"
+    ]
+  }
+]

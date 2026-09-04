@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.0] - 2026-09-05
+
+- Distinguish connectivity, OAuth metadata, visible tools and actual retrieval; JSON health output includes resource checks.
+- Add opt-in native MCP probe and a bounded public smoke/20-question benchmark without model calls.
+- Add per-run single-flight response reuse, hard request budgets and selected-case fallback testing.
+- Group copied content and shared upstream sources while preserving links, claims and contradictory support annotations.
+- Preserve Jina cache warnings across text/JSON/SSE formats and exclude code-example URLs from citation checks.
+- Document evidence-driven stopping, Chinese/discovery coverage and authenticated fallback boundaries.
+
+
 ## [1.3.0] - 2026-08-29
 
 ### Added

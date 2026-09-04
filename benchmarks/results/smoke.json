@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-09-04T22:30:12Z",
+  "scope": "public_retrieval_contracts",
+  "semantic_accuracy": "not_scored",
+  "passed": 2,
+  "total": 3,
+  "cases": [
+    {
+      "id": "exa-01",
+      "route": "exa",
+      "question": "MCP official tools list call specification",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "characters": 8050,
+      "source_urls": [
+        "https://example.com/weather-icon.png",
+        "https://github.com/modelcontextprotocol/docs/blob/main/docs/concepts/tools.mdx",
+        "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/ff960c9e/docs/specification/2025-06-18/server/tools.mdx",
+        "https://modelcontextprotocol.io/specification/2026-07-28/server/tools"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 3311
+    },
+    {
+      "id": "docs-react",
+      "route": "context7",
+      "question": "useEffect cleanup function timing",
+      "stage": "retrieval",
+      "status": "pass",
+      "tools_visible": 2,
+      "library_id": "/reactjs/react.dev",
+      "characters": 4663,
+      "source_urls": [
+        "https://github.com/reactjs/react.dev/blob/main/src/content/learn/separating-events-from-effects.md",
+        "https://github.com/reactjs/react.dev/blob/main/src/content/learn/synchronizing-with-effects.md",
+        "https://github.com/reactjs/react.dev/blob/main/src/content/reference/react/useEffect.md",
+        "https://localhost:1234';"
+      ],
+      "cached_snapshot": false,
+      "checks": {
+        "nonempty": true,
+        "source_present": true,
+        "topic_match": true
+      },
+      "semantic_accuracy": "not_scored",
+      "latency_ms": 5715
+    },
+    {
+      "id": "jina-1",
+      "route": "jina",
+      "question": "Read the example domain page",
+      "stage": "retrieval",
+      "status": "unavailable",
+      "reason": "HTTP request failed (curl exit 28)",
+      "latency_ms": 5751
+    }
+  ],
+  "requests": {
+    "used": 6,
+    "limit": 8,
+    "reused": 0
+  },
+  "boundaries": [
+    "TinyFish needs a host-authenticated search call; OAuth metadata is not proof.",
+    "Account-bound social sources and answer-level accuracy are not measured."
+  ]
+}

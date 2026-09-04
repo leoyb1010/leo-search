@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-09-04T22:41:02Z",
+  "scope": "host_native_mcp",
+  "model_turns": 0,
+  "tool_calls": 1,
+  "servers": [
+    {
+      "name": "leo-search-context7",
+      "auth_status": "notLoggedIn",
+      "tools": [
+        "query-docs",
+        "resolve-library-id"
+      ],
+      "stage": "tools_visible",
+      "retrieval_verified": false
+    },
+    {
+      "name": "leo-search-exa",
+      "auth_status": "notLoggedIn",
+      "tools": [
+        "web_fetch_exa",
+        "web_search_exa"
+      ],
+      "stage": "tools_visible",
+      "retrieval_verified": false
+    },
+    {
+      "name": "leo-search-tinyfish",
+      "auth_status": "oAuth",
+      "tools": [
+        "fetch_content",
+        "search"
+      ],
+      "stage": "retrieval",
+      "retrieval_verified": true,
+      "characters": 4258
+    }
+  ]
+}

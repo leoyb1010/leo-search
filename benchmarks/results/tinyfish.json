@@ -1,0 +1,9 @@
+{
+  "server": "leo-search-tinyfish",
+  "scope": "host_authenticated_search",
+  "status": "pass",
+  "characters": 4258,
+  "tool_calls": 1,
+  "model_turns": 0,
+  "ephemeral": true
+}

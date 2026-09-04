@@ -62,7 +62,7 @@ valid_exa_body='{"jsonrpc":"2.0","result":{"protocolVersion":"2025-06-18","serve
 FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" run_doctor
 test "$status" -eq 0
 grep -q 'OK   Exa MCP' "$temporary/output"
-grep -q 'OK   TinyFish MCP.*OAuth metadata' "$temporary/output"
+grep -q 'INFO TinyFish MCP.*OAuth metadata' "$temporary/output"
 
 FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=503 run_doctor
 test "$status" -eq 2
@@ -83,7 +83,7 @@ grep -q 'OK   Jina Reader.*HTTP 200 via system-proxy' "$temporary/output"
 FAKE_EXA_STATUS=000 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=000 FAKE_JINA_STATUS=200 FAKE_SYSTEM_PROXY=0 FAKE_PROXY_STATUS=200 LEO_SEARCH_PROXY=socks5h://127.0.0.1:7898 run_doctor
 test "$status" -eq 0
 grep -q 'OK   Exa MCP.*via system-proxy' "$temporary/output"
-grep -q 'OK   TinyFish MCP.*via system-proxy' "$temporary/output"
+grep -q 'INFO TinyFish MCP.*via system-proxy' "$temporary/output"
 
 printf '%s\n' '#!/bin/sh' 'exit 0' > "$temporary/bin/opencli"
 chmod +x "$temporary/bin/opencli"
@@ -104,10 +104,14 @@ import sys
 with open(sys.argv[1], encoding="utf-8") as handle:
     report = json.load(handle)
 
-assert report["schemaVersion"] == 1
+assert report["schemaVersion"] == 2
 assert report["result"] == "ok"
 assert report["warnings"] == 0
 assert report["deep"] is False
+assert report["retrieval_verified"] is False
+assert report["scope"] == "connectivity_only"
+assert any(r["section"] == "resource safety" for r in report["routes"])
+assert next(r for r in report["routes"] if r["label"] == "TinyFish MCP")["status"] == "info"
 labels = {route["label"] for route in report["routes"]}
 assert {"Exa MCP", "Context7 MCP", "TinyFish MCP", "Jina Reader"} <= labels
 PY
