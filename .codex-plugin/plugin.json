@@ -1,7 +1,7 @@
 {
   "name": "leo-search",
-  "version": "1.5.0+codex.20260920074944",
-  "description": "Adaptive current research with Fast, Deep, Discovery and account-bound Capability Max routes plus evidence normalization.",
+  "version": "1.6.0+codex.20260920084325",
+  "description": "Evidence-led research with authenticated Exa/Tavily, official X API, direct source batches, bounded fallback and source-quality checks.",
   "author": {
     "name": "Leo Yuan",
     "url": "https://github.com/leoyb1010"

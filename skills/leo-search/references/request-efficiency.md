@@ -29,3 +29,9 @@ Chinese questions may need Chinese terminology and local sources; technical clai
 For substantial research, report the important coverage gaps and, when actually tracked, calls used, reused results and stopping reason. Never invent a token/cost estimate from call count.
 
 The bundled smoke runner enforces a hard request budget, coalesces identical in-flight requests and reuses responses in memory for one run only. This implementation validates the mechanism; skill-driven tool usage still follows the policy above and must keep its own evidence ledger.
+
+## Source-native fast path
+
+When a precise official page, repository endpoint or feed is already known, retrieve it directly and batch independent URLs with `fetch_sources.py`; use discovery tools to locate missing sources rather than re-resolving known ones. This reader counts redirects and fallback requests, shares duplicates within its run, and returns per-source failures without throwing away successful sources. It does not score truth or track native MCP calls.
+
+If a provider returns a quota/auth failure, mark it unavailable for this task and spend the remaining budget on a different source class or working provider. Report that boundary once. A saved proxy is not a reason to repeat a failed route on every public page; the batch reader tries direct public HTTP first without changing saved settings.

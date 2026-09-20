@@ -2,7 +2,7 @@
 name: leo-search
 description: Search, verify and compare current sources; read URLs and repositories; turn evidence into useful answers, recommendations or research leads. Use for web and technical research, with account-bound sources only when requested.
 metadata:
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 # Leo Search
@@ -24,19 +24,24 @@ Extract the question, changing constraints (date, exact version, geography, lang
 
 ## Route requests
 
+Use an authenticated native Exa connector for ordinary discovery when it is available and working. For explicit filters, effort modes or fallback, use `<plugin-root>/scripts/search.py` as described in [authenticated-search.md](references/authenticated-search.md); it reads local Exa/Tavily credentials without adding a service. A native tool's objective is guidance, not a guaranteed domain filter: inspect returned URLs. Avoid repeatedly hitting a keyless quota when an authenticated route is configured. Never read or print credential files merely to check availability.
+
 | Need | Primary route | Fallback |
 | --- | --- | --- |
-| Current web, products, people or companies | `leo-search-exa` web search | TinyFish `search`, then built-in HTTP web search |
-| News, research papers, date-bounded or geo/language-filtered search | TinyFish `search` | `leo-search-exa` web search |
+| Current web, products, people or companies | Authenticated Exa auto/fast when configured; otherwise available native search | Authenticated Tavily, then available native web search |
+| News, research papers, date-bounded or geo/language-filtered search | Authenticated Exa/Tavily with explicit filters; use source-native indexes for current records | Available TinyFish/native search; disclose any lost filter |
 | Full text for a known public URL | Available Exa fetch tool, or direct official HTTP for a simple document | Jina Reader with bounded timeout, then an available authorized fetch route |
 | JavaScript-heavy pages, up to 10 URLs, CSS-scoped extraction or conditional monitoring | TinyFish `fetch_content` | Jina Reader or Exa extraction |
-| Current library or framework documentation | `leo-search-context7`; resolve library ID before querying docs | Official documentation over HTTP |
+| Current library or framework documentation | Known exact official page directly; otherwise Context7 resolve/query to locate the API | Official documentation over HTTP |
 | GitHub repositories, stars, releases, commits, issues or code | `gh api`, `gh repo view`, or GitHub MCP | GitHub REST API over HTTP |
 | RSS/Atom | `curl` plus an installed feed parser | Direct feed HTTP |
+| Public X posts, discussion or author timeline | Configured official [X API helper](references/x-api.md), with a narrow query and bounded results | Authorized platform route; web snippets are discovery only |
 | YouTube/Bilibili public metadata or subtitles | Installed `yt-dlp` or Agent Reach CLI | Public HTTP metadata |
 | Logged-in social content | Authorized connector/OpenCLI/current session in Capability Max | Report the boundary when no authorized route exists |
 
 Choose `Fast`, `Deep`, `Discovery` or `Capability Max` using [research-modes.md](references/research-modes.md). Ordinary requests default to Fast.
+
+For breadth, difficult comparisons or failed routes, use [source-strategy.md](references/source-strategy.md): match source classes to missing evidence, not a fixed provider tour. Batch known public HTML/JSON/feed URLs with `<plugin-root>/scripts/fetch_sources.py`; preserve actual source dates, truncation and retrieval limits. Reuse an existing authorized repository CLI before hitting an anonymous API quota.
 
 For GitHub recommendations that must be high-star, fetch the current `stargazers_count`, latest release or commit date, license and archived status. Never infer stars from search snippets.
 

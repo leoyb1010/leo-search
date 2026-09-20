@@ -1,6 +1,6 @@
 # Leo Search
 
-Current base version: **1.5.0**. Source-grounded answers preserve each claim's stance and excerpt. The 12-case answer evaluator is separate from live retrieval checks; see `benchmarks/README.md`.
+Current base version: **1.6.0**. Source-grounded answers preserve each claim's stance and excerpt. The 12-case answer evaluator is separate from live retrieval checks; see `benchmarks/README.md`.
 
 Leo Search is a Codex plugin for current web and technical research with four adaptive modes: Fast, Deep, Discovery and Capability Max. It bundles remote MCP routes, evidence normalization and a routing skill:
 
@@ -150,3 +150,11 @@ Fast normally starts with one useful query/read and a working allowance of four 
 The runner counts **network requests**, not paid API units or tokens. Reuse is process-local; no cross-user or stale persistent cache is created. Benchmark checks measure retrieval contracts (content, source, topic), not answer-level accuracy. See `benchmarks/README.md` for measured results and limits.
 
 For plugin updates, use the installed plugin-creator cachebuster/validation helpers and `codex plugin add leo-search@personal` against the existing local marketplace. The historical 1.3.0 working copy is preserved in Git before 1.4.0 changes.
+
+## Authenticated routes (1.6)
+
+`python3 scripts/search.py search 'question' --mode fast --provider auto` uses configured Exa, then Tavily only if needed. `--provider both` broadens a named coverage gap; `--mode deep` increases search effort. `read URL...` batches extraction. `scripts/fetch_sources.py URL...` reads ordinary public HTML/JSON/feeds directly.
+
+`python3 scripts/x_api.py search 'from:NASA -is:retweet' --limit 10` uses official X API v2; `--archive`, `post`, `user` and `timeline` are explicit routes. All helpers preserve partial failures and actual request counts. See the skill references for source-quality limits.
+
+Credentials: environment `EXA_API_KEY`, `TAVILY_API_KEY`, `X_BEARER_TOKEN`, or private files under `~/.config/leo-search/` named `exa-api-key`, `tavily-api-key`, `x-bearer-token` (mode 0600). Do not put credentials in this repository or plugin manifest. A connected authenticated Exa native tool is also supported. No vendor SDK or additional daemon is required.

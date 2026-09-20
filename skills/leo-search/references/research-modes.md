@@ -14,7 +14,7 @@ Use for reports, contested questions, multi-part comparisons and questions whose
 2. Name the evidence required for each branch.
 3. Search in waves of at most four concurrent queries.
 4. Normalize sources into an evidence ledger.
-5. Search again only for unresolved claims, contradictions or missing perspectives.
+5. For each decision-driving claim, read the actual method/mechanism and the strongest relevant limitation. Search again only for unresolved claims, contradictions or missing perspectives; use [source-strategy.md](source-strategy.md) to change source class instead of repeating an unproductive route.
 6. Stop when added sources no longer change the claim set or uncertainty.
 
 ## Discovery

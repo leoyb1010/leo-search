@@ -1,3 +1,10 @@
+## 1.6.0 — 2026-09-20
+
+- Add authenticated Exa/Tavily search and extraction with effort, date/domain filters, actual usage and bounded fallback; keys remain in private host configuration.
+- Add official X v2 public recent/archive search, post lookup and timelines with capped pagination and retained author/time/conversation metadata.
+- Add concurrent source-native HTML/JSON/RSS/Atom reading, deduplication and redirect-aware budgets; preserve date differences and explicit extraction bounds.
+- Improve broad/deep source selection and handle provider excerpts conservatively. Retain independent held-out research evidence and live route measurements separately from answer accuracy.
+
 ## 1.5.0 — 2026-09-20
 
 - Preserve claim-to-stance and excerpt relationships during evidence merging; keep distinct URL views intact.
