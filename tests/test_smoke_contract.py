@@ -2,11 +2,29 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
+import subprocess
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from smoke import reader_content, source_urls
+import smoke
+from request_budget import RequestBudget
 
 
 class SmokeContractTest(unittest.TestCase):
+    def test_stale_child_proxy_falls_back_once_within_budget(self):
+        commands = []
+        def run(command, **kwargs):
+            commands.append(command)
+            if command[0] == '/usr/sbin/scutil':
+                return subprocess.CompletedProcess(command, 0, 'HTTPSEnable : 0', '')
+            if '--noproxy' in command:
+                return subprocess.CompletedProcess(command, 0, 'usable body\n200', '')
+            return subprocess.CompletedProcess(command, 28, '\n000', 'timeout')
+        with patch.object(smoke, 'BUDGET', RequestBudget(2)), patch.object(smoke.subprocess, 'run', side_effect=run), patch.dict(smoke.os.environ, {'HTTPS_PROXY':'http://127.0.0.1:9'}):
+            self.assertEqual(smoke.http('https://example.com'), 'usable body')
+            self.assertEqual(smoke.BUDGET.calls, 2)
+            self.assertEqual(sum('--noproxy' in c for c in commands), 1)
+
     def test_reader_accepts_text_json_and_sse_preserving_freshness_warning(self):
         data = {"url": "https://example.com/", "content": "real body", "warning": "cached snapshot"}
         for raw in [json.dumps({"data": data}), "event: data\ndata: " + json.dumps(data) + "\n\n"]:

@@ -11,6 +11,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 
 TRACKING_KEYS = {"fbclid", "gclid", "mc_cid", "mc_eid"}
+SUPPORT = {"supports", "contradicts", "context", "unknown"}
 
 
 def canonical_url(value: str) -> str:
@@ -23,9 +24,13 @@ def canonical_url(value: str) -> str:
         if not key.lower().startswith("utm_") and key.lower() not in TRACKING_KEYS
     ]
     path = parts.path or "/"
-    if path != "/":
-        path = path.rstrip("/")
-    return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, urlencode(sorted(query)), ""))
+    # Keep path, parameter order and fragments: any can identify a different view.
+    # Extra duplicates are preferable to silently combining different evidence.
+    return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, urlencode(query), parts.fragment))
+
+
+def unique_claims(claims: list[dict]) -> list[dict]:
+    return list({json.dumps(c, sort_keys=True, ensure_ascii=False): c for c in claims}.values())
 
 
 def normalize(record: dict[str, object]) -> dict[str, object]:
@@ -45,11 +50,23 @@ def normalize(record: dict[str, object]) -> dict[str, object]:
     claims = record.get("claim_ids", [])
     if not isinstance(claims, list) or any(not isinstance(x, str) for x in claims):
         raise ValueError("claim_ids must be an array of strings")
-    normalized["claim_ids"] = claims
     support = record.get("support", "unknown")
-    if not isinstance(support, str) or support not in {"supports", "contradicts", "context", "unknown"}:
+    if not isinstance(support, str) or support not in SUPPORT:
         raise ValueError("invalid support value")
-    normalized["support_values"] = [support]
+    links = record.get("claims", [{"id": c, "support": support} for c in claims])
+    if not isinstance(links, list):
+        raise ValueError("claims must be an array")
+    for link in links:
+        if not isinstance(link, dict) or not isinstance(link.get("id"), str) or not link["id"].strip():
+            raise ValueError("each claim requires a nonempty id")
+        if not isinstance(link.get("support"), str) or link["support"] not in SUPPORT:
+            raise ValueError("each claim requires a valid support value")
+        if "quote" in link and not isinstance(link["quote"], str):
+            raise ValueError("claim quote must be a string")
+    normalized["claims"] = unique_claims(links)
+    normalized["claim_ids"] = sorted({c["id"] for c in links})
+    normalized["support_values"] = sorted({c["support"] for c in links}) or [support]
+    normalized["support"] = normalized["support_values"][0] if len(normalized["support_values"]) == 1 else "unknown"
     upstream = record.get("upstream_source")
     normalized["upstream_sources"] = []
     if upstream is not None:
@@ -107,6 +124,7 @@ def main() -> int:
                 records[key]["duplicate_count"] = int(records[key]["duplicate_count"]) + 1
                 for field in ("source_urls", "claim_ids", "support_values", "upstream_sources"):
                     records[key][field] = sorted(set(records[key][field]) | set(item[field]))
+                records[key]["claims"] = unique_claims(records[key]["claims"] + item["claims"])
                 if len(records[key]["support_values"]) > 1:
                     records[key]["support"] = "unknown"
             else:

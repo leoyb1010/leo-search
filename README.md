@@ -1,5 +1,7 @@
 # Leo Search
 
+Current base version: **1.5.0**. Source-grounded answers preserve each claim's stance and excerpt. The 12-case answer evaluator is separate from live retrieval checks; see `benchmarks/README.md`.
+
 Leo Search is a Codex plugin for current web and technical research with four adaptive modes: Fast, Deep, Discovery and Capability Max. It bundles remote MCP routes, evidence normalization and a routing skill:
 
 - Exa for current web search and clean URL extraction

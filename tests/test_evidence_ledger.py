@@ -23,7 +23,7 @@ class EvidenceLedgerTest(unittest.TestCase):
     def test_normalizes_and_deduplicates_urls(self) -> None:
         result = self.run_ledger(
             [
-                {"url": "HTTPS://Example.com/story/?utm_source=x&id=7#top", "title": "First"},
+                {"url": "HTTPS://Example.com/story?utm_source=x&id=7", "title": "First"},
                 {"url": "https://example.com/story?id=7", "title": "Duplicate"},
             ]
         )
@@ -71,6 +71,29 @@ class EvidenceLedgerTest(unittest.TestCase):
         self.assertEqual(row["claim_ids"], ["c1", "c2"])
         self.assertEqual(row["support_values"], ["contradicts", "supports"])
         self.assertEqual(row["support"], "unknown")
+        self.assertEqual(row["claims"], [{"id": "c1", "support": "supports"}, {"id": "c2", "support": "contradicts"}])
+
+    def test_distinct_route_path_and_parameter_order_are_not_combined(self):
+        urls = ["https://a.example/#/one", "https://a.example/#/two",
+                "https://a.example/x", "https://a.example/x/",
+                "https://a.example/?x=1&x=2", "https://a.example/?x=2&x=1"]
+        result = self.run_ledger([{"url": u} for u in urls])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(result.stdout.splitlines()), len(urls))
+
+    def test_same_claim_keeps_conflicting_quotes(self):
+        claims = [{"id": "capacity", "support": "supports", "quote": "12 seats"},
+                  {"id": "capacity", "support": "contradicts", "quote": "8 seats"}]
+        result = self.run_ledger([{"url": "https://a.example/", "claims": [c]} for c in claims] * 2)
+        row = json.loads(result.stdout)
+        self.assertEqual(row["claims"], claims)
+        self.assertEqual(row["duplicate_count"], 4)
+
+    def test_invalid_quote_rejects_whole_batch(self):
+        result = self.run_ledger([{"url": "https://a.example/"},
+            {"url": "https://b.example/", "claims": [{"id": "x", "support": "supports", "quote": 4}]}])
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
 
     def test_unrelated_urls_do_not_claim_proven_independence(self):
         result = self.run_ledger([{"url": "https://a.example/"}, {"url": "https://b.example/"}])

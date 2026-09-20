@@ -1,0 +1,227 @@
+{
+  "scope": "synthetic_source_grounded_reasoning",
+  "cases": [
+    {
+      "id": "event-date",
+      "question": "事件实际发生在哪天？返回 YYYY-MM-DD。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "2026-09-01 发布：该工厂已于2026年7月3日投入运营。"
+        }
+      ],
+      "expected": {
+        "value": "2026-07-03",
+        "evidence_ids": [
+          "s1"
+        ]
+      }
+    },
+    {
+      "id": "exact-version",
+      "question": "只针对3.1版本，是否支持离线导出？返回布尔值。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "3.1官方文档：导出需要联网。"
+        },
+        {
+          "id": "s2",
+          "text": "3.2官方更新：新增离线导出。"
+        }
+      ],
+      "expected": {
+        "value": false,
+        "evidence_ids": [
+          "s1"
+        ]
+      }
+    },
+    {
+      "id": "price-basis",
+      "question": "标准套餐年付240元，每月折合多少元？返回数字。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "标准套餐月付25元；年付240元，包含12个月。"
+        }
+      ],
+      "expected": {
+        "value": 20,
+        "evidence_ids": [
+          "s1"
+        ]
+      }
+    },
+    {
+      "id": "independent",
+      "question": "这些报道有几个已知独立的原始来源？返回数字。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "A公司官方公告：完成试点。"
+        },
+        {
+          "id": "s2",
+          "text": "报纸B：据A公司公告，完成试点。"
+        },
+        {
+          "id": "s3",
+          "text": "媒体C转载报纸B的报道：完成试点。"
+        }
+      ],
+      "expected": {
+        "value": 1,
+        "evidence_ids": [
+          "s1",
+          "s2",
+          "s3"
+        ]
+      }
+    },
+    {
+      "id": "unknown",
+      "question": "是否承诺支持鸿蒙？只在有明确承诺时返回true，明确不支持时false，没有信息时null。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "产品支持iOS和Android；此页没有提到其他平台。"
+        }
+      ],
+      "expected": {
+        "value": null,
+        "evidence_ids": [
+          "s1"
+        ]
+      }
+    },
+    {
+      "id": "conflict",
+      "question": "两份同日有效的官方页面对于容量互相矛盾，有没有足够信息确定唯一容量？有则返回数字，否则null。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "同日官方中文页：场馆容量12人。"
+        },
+        {
+          "id": "s2",
+          "text": "同日官方英文页：Venue capacity: 8 people."
+        }
+      ],
+      "expected": {
+        "value": null,
+        "evidence_ids": [
+          "s1",
+          "s2"
+        ]
+      }
+    },
+    {
+      "id": "locale",
+      "question": "中国大陆标准套餐含税价格是多少元？返回数字。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "美国价格10美元，未含税。"
+        },
+        {
+          "id": "s2",
+          "text": "中国大陆价格68元，含税。"
+        }
+      ],
+      "expected": {
+        "value": 68,
+        "evidence_ids": [
+          "s2"
+        ]
+      }
+    },
+    {
+      "id": "replacement",
+      "question": "v5中oldExport被移除后应调用哪个API？返回方法名。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "v4参考：oldExport()导出文件。"
+        },
+        {
+          "id": "s2",
+          "text": "v5迁移指南：oldExport已删除，请使用exportFile()。"
+        }
+      ],
+      "expected": {
+        "value": "exportFile",
+        "evidence_ids": [
+          "s2"
+        ]
+      }
+    },
+    {
+      "id": "launch-scope",
+      "question": "能否据此说全国全面上线？返回布尔值。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "2026年9月在苏州两家门店开展封闭试点，尚未向其他地区开放。"
+        }
+      ],
+      "expected": {
+        "value": false,
+        "evidence_ids": [
+          "s1"
+        ]
+      }
+    },
+    {
+      "id": "percent-points",
+      "question": "转化率由20%增至30%，增加几个百分点？返回数字。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "同一口径：改版前20%，改版后30%。"
+        }
+      ],
+      "expected": {
+        "value": 10,
+        "evidence_ids": [
+          "s1"
+        ]
+      }
+    },
+    {
+      "id": "paired-claims",
+      "question": "分别判断A“周一开放”、B“容量12人”，返回{\"A\":布尔,\"B\":布尔}。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "官方访客须知：周一闭馆，场馆容量为12人。"
+        }
+      ],
+      "expected": {
+        "value": {
+          "A": false,
+          "B": true
+        },
+        "evidence_ids": [
+          "s1"
+        ]
+      }
+    },
+    {
+      "id": "stale-evidence",
+      "question": "截至9月20日，能否用9月1日库存截图确定现在仍有现货？返回true或null。",
+      "sources": [
+        {
+          "id": "s1",
+          "text": "9月1日截图：现货3件；此后没有库存记录。"
+        }
+      ],
+      "expected": {
+        "value": null,
+        "evidence_ids": [
+          "s1"
+        ]
+      }
+    }
+  ]
+}

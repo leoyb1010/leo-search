@@ -1,3 +1,10 @@
+## 1.5.0 — 2026-09-20
+
+- Preserve claim-to-stance and excerpt relationships during evidence merging; keep distinct URL views intact.
+- Start from the user's decision, favor useful direct answers and available fetch routes, and avoid ceremonial research overhead.
+- Recover a public fetch once from a stale child proxy without changing saved/system settings; respect the request budget.
+- Add 12 frozen source-grounded answer cases and an exact value/citation evaluator; keep live retrieval and answer evaluation separate.
+
 # Changelog
 
 ## [1.4.0] - 2026-09-05

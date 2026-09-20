@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -28,7 +29,9 @@ def fetch(url: str, payload: dict | None = None, proxy: str | None = None) -> st
                "-H", "Accept: " + ("application/json, text/event-stream" if payload is not None else "text/plain")]
     if payload is not None:
         command += ["-H", "Content-Type: application/json", "--data-binary", json.dumps(payload)]
-    if proxy:
+    if proxy == "":
+        command += ["--noproxy", "*"]
+    elif proxy:
         command += ["--proxy", proxy]
     result = subprocess.run(command + [url], capture_output=True, text=True, timeout=25)
     if result.returncode in {6, 7, 28} and proxy is None:
@@ -42,6 +45,11 @@ def fetch(url: str, payload: dict | None = None, proxy: str | None = None) -> st
                 return BUDGET.run((url, json.dumps(payload, sort_keys=True), proxy), lambda: fetch(url, payload, proxy))
         except (OSError, subprocess.TimeoutExpired):
             pass
+        # A saved child-only proxy can outlive the local proxy service. Do not
+        # change it globally; spend at most one request trying this public URL directly.
+        proxy_file = Path(os.environ.get("LEO_SEARCH_PROXY_FILE", str(Path.home() / ".config/leo-search/proxy")))
+        if proxy_file.exists() or any(os.environ.get(k) for k in ("LEO_SEARCH_PROXY", "HTTPS_PROXY", "ALL_PROXY")):
+            return BUDGET.run((url, json.dumps(payload, sort_keys=True), "direct"), lambda: fetch(url, payload, ""))
     if result.returncode:
         # Deliberately do not log provider error bodies or command arguments.
         raise RuntimeError("HTTP request failed (status %s, curl exit %s)" % (result.stdout.rpartition("\n")[2], result.returncode))
