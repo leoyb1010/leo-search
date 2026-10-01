@@ -21,7 +21,8 @@ def messages(raw):
 
 def valid_initialize(raw):
     try:
-        matches = [value for value in messages(raw) if isinstance(value, dict) and value.get('id') == 1]
+        matches = [value for value in messages(raw) if isinstance(value, dict)
+                   and type(value.get('id')) is int and value['id'] == 1]
         if not matches:
             return False
         value = matches[-1]

@@ -11,6 +11,7 @@ import subprocess
 import time
 from request_budget import RequestBudget
 from protocol_check import messages
+from evidence_ledger import canonical_url
 
 ROOT = Path(__file__).resolve().parents[1]
 ENDPOINTS = {"exa": "https://mcp.exa.ai/mcp", "context7": "https://mcp.context7.com/mcp",
@@ -54,7 +55,8 @@ def rpc(route: str, method: str, params: dict) -> dict:
     if len(raw) > 8 * 1024 * 1024:
         raise RuntimeError("MCP response exceeds size limit")
     frames = messages(raw)
-    replies = [frame for frame in frames if isinstance(frame, dict) and frame.get('id') == 1]
+    replies = [frame for frame in frames if isinstance(frame, dict)
+               and type(frame.get('id')) is int and frame['id'] == 1]
     if not replies:
         raise RuntimeError("MCP response ID missing or mismatched")
     data = replies[-1]
@@ -79,22 +81,57 @@ def text_content(result: dict) -> str:
     return "\n".join(text)
 
 
-def reader_content(raw: str, url: str) -> str:
-    messages = [line[5:].strip() for line in raw.splitlines() if line.startswith("data:")]
-    value = messages[-1] if messages else raw
-    if value.lstrip().startswith(("{", "[")):
-        parsed = json.loads(value)
+def reader_document(raw: str, url: str) -> tuple[str, list[str]]:
+    """Separate Reader-owned provenance from untrusted extracted page text."""
+    outer = raw.lstrip()
+    parsed = None
+    structured = outer.startswith(("{", "["))
+    if structured:
+        parsed = json.loads(outer)
+    elif (outer.startswith(('event:', 'data:', ':')) and all(
+            not line or line.startswith(('event:', 'data:', 'id:', 'retry:', ':'))
+            for line in outer.replace('\r\n', '\n').split('\n'))):
+        # Classify only the outer wire envelope. A Markdown page may itself
+        # contain data: examples, which are never transport metadata.
+        frames = messages(outer)
+        if frames:
+            structured = True
+            parsed = frames[-1]
+    if structured:
         if not isinstance(parsed, dict):
             raise RuntimeError("Jina returned an invalid response shape")
         data = parsed.get("data", parsed)
         if not isinstance(data, dict) or not isinstance(data.get("content"), str):
             raise RuntimeError("Jina returned no readable content")
-        return "URL Source: " + str(data.get("url", url)) + "\n" + str(data.get("warning", "")) + "\n" + data["content"]
-    return raw
+        if not isinstance(data.get("url"), str):
+            raise RuntimeError("Jina returned no source URL")
+        source = canonical_url(data["url"])
+        return "URL Source: " + source + "\n" + str(data.get("warning", "")) + "\n" + data["content"], [source]
+    # Jina's text response has a metadata preamble followed by Markdown Content.
+    # Stop on body text: a page can itself contain forged URL Source lines.
+    sources = []
+    body_boundary = False
+    for line in raw.splitlines():
+        if line.startswith('Markdown Content:'):
+            body_boundary = True
+            break
+        if line.startswith('URL Source:'):
+            sources.append(canonical_url(line.partition(':')[2].strip()))
+        elif line and not line.startswith(('Title:', 'Published Time:', 'Warning:')):
+            break
+    sources = sorted(set(sources)) if body_boundary else []
+    if len(sources) > 1:
+        raise RuntimeError('Jina returned conflicting source metadata')
+    return raw, sources
+
+
+def reader_content(raw: str, url: str) -> str:
+    return reader_document(raw, url)[0]
 
 
 def source_urls(content: str) -> list[str]:
-    return sorted(set(re.findall(r"(?im)^(?:URL|Source|URL Source):\s*(https?://[^\s<>]+)", content)))
+    urls = re.findall(r"(?im)^(?:URL|Source|URL Source):\s*(https?://[^\s<>]+)", content)
+    return sorted({canonical_url(url) for url in urls})
 
 
 def probe(case: dict) -> dict:
@@ -106,7 +143,7 @@ def probe(case: dict) -> dict:
     try:
         route = case["route"]
         if route == "jina":
-            content = reader_content(http("https://r.jina.ai/" + case["url"]), case["url"])
+            content, reader_sources = reader_document(http("https://r.jina.ai/" + case["url"]), case["url"])
         else:
             tools = rpc(route, "tools/list", {}).get("tools", [])
             if not isinstance(tools, list) or len(tools) > 1000 or any(not isinstance(t, dict) or not isinstance(t.get('name'), str) for t in tools):
@@ -134,12 +171,16 @@ def probe(case: dict) -> dict:
                 raise RuntimeError("expected tool unavailable")
             content = text_content(rpc(route, "tools/call", {"name": tool, "arguments": args}))
         # Only provider source fields count as citations, never URLs inside example code.
-        urls = source_urls(content)
+        urls = reader_sources if route == "jina" else source_urls(content)
         row.update({"characters": len(content), "source_urls": urls[:12],
                     "cached_snapshot": "cached snapshot" in content.lower(),
                     "checks": {"nonempty": len(content.strip()) >= 80,
                                "source_present": bool(urls),
                                "topic_match": any(x.casefold() in content.casefold() for x in case["keywords"])}})
+        if route == "jina":
+            # A fetched, different resource is not proof of the requested page.
+            # Redirects are reported as a gap rather than silently relabeled.
+            row["checks"]["source_matches_requested"] = canonical_url(case["url"]) in urls
         row["status"] = "pass" if all(row["checks"].values()) else "fail"
         row["semantic_accuracy"] = "not_scored"
     except (RuntimeError, ValueError, OSError, subprocess.TimeoutExpired) as error:

@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+import fcntl
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -16,6 +18,49 @@ TARGETS = {
     "claude": Path.home() / ".claude" / "skills" / "leo-search",
     "cursor": Path.home() / ".cursor" / "skills" / "leo-search",
 }
+
+
+def install_targets(names, source, force) -> int:
+    """Serialize cooperating installers; stage links before preserving old data."""
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    backup_root = None
+    conflicts = False
+    for name in names:
+        target = TARGETS[name]
+        if target.is_symlink() and target.resolve() == source:
+            print(f"{name}: already linked")
+            continue
+        if (target.exists() or target.is_symlink()) and not force:
+            print(f"{name}: conflict, preserved; use --force to replace")
+            conflicts = True
+            continue
+        backup = None
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with tempfile.TemporaryDirectory(prefix='.leo-search-link-', dir=target.parent) as staged:
+                link = Path(staged) / 'leo-search'
+                link.symlink_to(source, target_is_directory=True)
+                if target.exists() or target.is_symlink():
+                    if backup_root is None:
+                        parent = Path.home() / '.leo-search-backups'
+                        parent.mkdir(parents=True, exist_ok=True)
+                        backup_root = Path(tempfile.mkdtemp(prefix=timestamp + '-', dir=parent))
+                    backup = backup_root / name / 'leo-search'
+                    backup.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(target), str(backup))
+                try:
+                    os.replace(link, target)
+                except OSError:
+                    if backup is not None and not (target.exists() or target.is_symlink()):
+                        shutil.move(str(backup), str(target))
+                    raise
+            print(f"{name}: linked to {source}")
+        except OSError:
+            print(f"{name}: installation failed; existing data was not deleted", file=sys.stderr)
+            if backup is not None and (backup.exists() or backup.is_symlink()):
+                print(f"{name}: original preserved at {backup}", file=sys.stderr)
+            conflicts = True
+    return 1 if conflicts else 0
 
 
 def main() -> int:
@@ -33,30 +78,13 @@ def main() -> int:
         parser.error("--targets must name at least one target")
 
     source = Path(__file__).resolve().parents[1] / "skills" / "leo-search"
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    backup_root = None
-    conflicts = False
-    for name in names:
-        target = TARGETS[name]
-        if target.is_symlink() and target.resolve() == source:
-            print(f"{name}: already linked")
-            continue
-        if target.exists() or target.is_symlink():
-            if not args.force:
-                print(f"{name}: conflict, preserved; use --force to replace")
-                conflicts = True
-                continue
-            if backup_root is None:
-                parent = Path.home() / ".leo-search-backups"
-                parent.mkdir(parents=True, exist_ok=True)
-                backup_root = Path(tempfile.mkdtemp(prefix=timestamp + "-", dir=parent))
-            backup = backup_root / name / "leo-search"
-            backup.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(target), str(backup))
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.symlink_to(source, target_is_directory=True)
-        print(f"{name}: linked to {source}")
-    return 1 if conflicts else 0
+    try:
+        with (Path.home() / '.leo-search-install.lock').open('a') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            return install_targets(names, source, args.force)
+    except OSError:
+        print('Could not lock installation; no target was changed', file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

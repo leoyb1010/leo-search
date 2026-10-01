@@ -5,12 +5,16 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import selectors
 import signal
 import subprocess
 import sys
 import tempfile
 import time
+from urllib.parse import urlsplit
+from evidence_ledger import canonical_url
+from smoke import text_content
 try:
     import tomllib
 except ImportError:
@@ -66,7 +70,7 @@ class RpcPeer:
                     raise RuntimeError('invalid native RPC message')
                 if 'id' in message and 'method' in message:
                     raise RuntimeError('interactive input required; probe stopped')
-                if message.get('id') == ident:
+                if type(message.get('id')) is type(ident) and message.get('id') == ident:
                     if 'error' in message or 'result' not in message:
                         raise RuntimeError('native RPC failed: ' + method)
                     return message['result']
@@ -100,6 +104,7 @@ def summarize(servers: list[dict], oauth_rejected: bool = False) -> list[dict]:
                'tools': names, 'stage': 'tools_visible' if names else 'unavailable',
                'retrieval_verified': False}
         if server['name'] == 'leo-search-tinyfish' and oauth_rejected:
+            row['stage'] = 'unavailable'
             row['reason'] = 'OAuth refresh rejected; reauthorization required'
         elif not names:
             row['reason'] = 'No tools exposed; stored auth metadata is not proof'
@@ -160,18 +165,29 @@ def main() -> int:
                 raise RuntimeError('expected Leo Search routes are missing from native inventory')
             tiny = next((r for r in report['servers'] if r['name'] == 'leo-search-tinyfish'), None)
             if args.search:
-                if not tiny or 'search' not in tiny['tools']:
+                if not tiny or tiny['stage'] == 'unavailable' or 'search' not in tiny['tools']:
                     raise RuntimeError('TinyFish search unavailable; use Exa fallback')
                 # Ephemeral execution context is discarded; no persisted task or model run.
                 thread = call(ident, 'thread/start', {'cwd': directory, 'ephemeral': True,
                               'approvalPolicy': 'never', 'sandbox': 'read-only'})
+                if (not isinstance(thread, dict) or not isinstance(thread.get('thread'), dict)
+                        or not isinstance(thread['thread'].get('id'), str) or not thread['thread']['id']):
+                    raise RuntimeError('invalid native thread handoff')
                 report['tool_calls'] = 1
                 result = call(ident + 1, 'mcpServer/tool/call', {'threadId': thread['thread']['id'],
                     'server': 'leo-search-tinyfish', 'tool': 'search', 'arguments': {
                         'query': 'Model Context Protocol official tools specification',
                         'include_domains': 'modelcontextprotocol.io', 'language': 'en'}})
-                body = '\n'.join(x.get('text', '') for x in result.get('content', []) if x.get('type') == 'text')
-                tiny['retrieval_verified'] = not result.get('isError') and len(body) > 80 and 'modelcontextprotocol.io' in body
+                if not isinstance(result, dict):
+                    raise RuntimeError('invalid native tool result')
+                body = text_content(result)
+                # Native providers also return Markdown citations, not only
+                # explicit Source fields. Validate URL authorities, not a
+                # substring that a lookalike hostname can satisfy.
+                urls = [canonical_url(url.rstrip(').,;]}'))
+                        for url in re.findall(r'https?://[^\s<>"`]+', body)]
+                tiny['retrieval_verified'] = not result.get('isError') and len(body) > 80 and any(
+                    urlsplit(url).hostname == 'modelcontextprotocol.io' for url in urls)
                 tiny['stage'] = 'retrieval' if tiny['retrieval_verified'] else 'unavailable'
                 tiny['characters'] = len(body)
                 if not tiny['retrieval_verified']:
