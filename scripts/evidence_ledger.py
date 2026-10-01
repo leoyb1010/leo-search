@@ -7,25 +7,39 @@ import hashlib
 import json
 import sys
 from collections import OrderedDict
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import unquote_to_bytes, urlsplit, urlunsplit
 
 
 TRACKING_KEYS = {"fbclid", "gclid", "mc_cid", "mc_eid"}
 
 
 def canonical_url(value: str) -> str:
+    if any(ord(char) < 32 or ord(char) == 127 for char in value):
+        raise ValueError("URL must not contain control characters")
     parts = urlsplit(value.strip())
-    if parts.scheme.lower() not in {"http", "https"} or not parts.netloc:
-        raise ValueError(f"unsupported URL: {value}")
-    query = [
-        (key, item)
-        for key, item in parse_qsl(parts.query, keep_blank_values=True)
-        if not key.lower().startswith("utm_") and key.lower() not in TRACKING_KEYS
-    ]
+    if parts.scheme.lower() not in {"http", "https"} or not parts.hostname:
+        raise ValueError("each source URL must be an absolute HTTP(S) URL")
+    if parts.username is not None or parts.password is not None:
+        raise ValueError("source URLs must not contain credentials")
+    # Accessing port validates malformed/out-of-range ports without echoing input.
+    try:
+        parts.port
+    except ValueError:
+        raise ValueError("source URL has an invalid port") from None
+    if any(char.isspace() for char in parts.netloc) or "\\" in parts.netloc:
+        raise ValueError("source URL has an invalid host")
+    query = []
+    for segment in parts.query.split('&'):
+        key = unquote_to_bytes(segment.partition('=')[0].replace('+', ' ')).lower()
+        if not key.startswith(b'utm_') and key not in {item.encode() for item in TRACKING_KEYS}:
+            query.append(segment)
     path = parts.path or "/"
-    if path != "/":
-        path = path.rstrip("/")
-    return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, urlencode(sorted(query)), ""))
+    # Paths and repeated query order can identify different resources. Do not
+    # collapse /article with /article/, or ?id=1&id=2 with ?id=2&id=1.
+    result = urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, '&'.join(query), ""))
+    if not parts.query and '?' in value.strip().split('#', 1)[0]:
+        result += '?'
+    return result
 
 
 def normalize(record: dict[str, object]) -> dict[str, object]:
@@ -35,6 +49,8 @@ def normalize(record: dict[str, object]) -> dict[str, object]:
     normalized = dict(record)
     normalized["canonical_url"] = canonical_url(url)
     content = normalized.get("content")
+    if content is not None and not isinstance(content, str):
+        raise ValueError("content must be a string or null")
     normalized["content_hash"] = (
         hashlib.sha256(content.encode("utf-8")).hexdigest()
         if isinstance(content, str) and content

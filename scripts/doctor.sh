@@ -94,6 +94,12 @@ PY
 fi
 
 warnings=0
+plugin_dir=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
+
+valid_response() {
+  command -v python3 >/dev/null 2>&1 || return 1
+  python3 "$plugin_dir/scripts/protocol_check.py" "$1"
+}
 
 section() {
   printf '\n[%s]\n' "$1"
@@ -204,10 +210,7 @@ mcp_status() {
   esac
   case "$code" in
     2??)
-      if printf '%s' "$body" | grep -Eq '"jsonrpc"[[:space:]]*:[[:space:]]*"2\.0"' &&
-        printf '%s' "$body" | grep -q '"result"' &&
-        printf '%s' "$body" | grep -q '"protocolVersion"' &&
-        printf '%s' "$body" | grep -q '"serverInfo"'; then
+      if printf '%s' "$body" | valid_response initialize; then
         printf 'OK   %-14s MCP initialize HTTP %s via %s\n' "$label" "$code" "$route"
       else
         printf 'WARN %-14s invalid MCP initialize response\n' "$label"
@@ -244,8 +247,7 @@ oauth_metadata_status() {
   esac
   case "$code" in
     2??)
-      if printf '%s' "$body" | grep -q '"resource"' &&
-        printf '%s' "$body" | grep -q '"authorization_servers"'; then
+      if printf '%s' "$body" | valid_response oauth; then
         printf 'INFO %-14s OAuth metadata HTTP %s via %s; authentication and retrieval unverified\n' "$label" "$code" "$route"
       else
         printf 'WARN %-14s invalid OAuth metadata response\n' "$label"

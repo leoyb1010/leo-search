@@ -29,6 +29,9 @@ No API key is required for the default routes. TinyFish requires a valid OAuth s
 
 ## Verify
 
+Use Python 3.11 or newer for the Python utilities and native probe. The native
+probe stops with a clear version message on older Python before starting Codex.
+
 ```bash
 ~/plugins/leo-search/scripts/doctor.sh
 ~/plugins/leo-search/scripts/doctor.sh --json

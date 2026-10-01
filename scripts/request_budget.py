@@ -5,8 +5,8 @@ from threading import Lock
 
 class RequestBudget:
     def __init__(self, limit=8):
-        if limit < 1:
-            raise ValueError("request limit must be positive")
+        if isinstance(limit, bool) or not isinstance(limit, int) or limit < 1:
+            raise ValueError("request limit must be a positive integer")
         self.limit, self.calls, self.cache_hits = limit, 0, 0
         self._pending, self._lock = {}, Lock()
 
@@ -24,6 +24,8 @@ class RequestBudget:
         if owner:
             try:
                 future.set_result(operation())
-            except Exception as error:
+            except BaseException as error:
+                # Wake every single-flight waiter even on cancellation or interruption.
+                # Future.result re-raises the original exception for the owner too.
                 future.set_exception(error)
         return future.result()

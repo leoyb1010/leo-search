@@ -1,13 +1,24 @@
 name: Verify
 on: [push, pull_request]
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   offline-checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python }}
       - run: python3 -B -m unittest discover -s tests -v
       - run: sh tests/doctor_test.sh
+      - run: python3 -B -m compileall -q scripts tests
+      - run: for script in scripts/*.sh tests/*.sh; do sh -n "$script"; done
       - run: git diff --check

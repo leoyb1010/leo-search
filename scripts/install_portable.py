@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import shutil
 import sys
+import tempfile
 
 
 TARGETS = {
@@ -23,15 +24,18 @@ def main() -> int:
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
-    names = [name.strip() for name in args.targets.split(",") if name.strip()]
+    names = list(dict.fromkeys(name.strip() for name in args.targets.split(",") if name.strip()))
     unknown = [name for name in names if name not in TARGETS]
     if unknown:
         print(f"Unknown targets: {', '.join(unknown)}", file=sys.stderr)
         return 2
+    if not names:
+        parser.error("--targets must name at least one target")
 
     source = Path(__file__).resolve().parents[1] / "skills" / "leo-search"
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    backup_root = Path.home() / ".leo-search-backups" / timestamp
+    backup_root = None
+    conflicts = False
     for name in names:
         target = TARGETS[name]
         if target.is_symlink() and target.resolve() == source:
@@ -40,14 +44,19 @@ def main() -> int:
         if target.exists() or target.is_symlink():
             if not args.force:
                 print(f"{name}: conflict, preserved; use --force to replace")
+                conflicts = True
                 continue
+            if backup_root is None:
+                parent = Path.home() / ".leo-search-backups"
+                parent.mkdir(parents=True, exist_ok=True)
+                backup_root = Path(tempfile.mkdtemp(prefix=timestamp + "-", dir=parent))
             backup = backup_root / name / "leo-search"
             backup.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(target), str(backup))
         target.parent.mkdir(parents=True, exist_ok=True)
         target.symlink_to(source, target_is_directory=True)
         print(f"{name}: linked to {source}")
-    return 0
+    return 1 if conflicts else 0
 
 
 if __name__ == "__main__":

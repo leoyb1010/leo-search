@@ -7,28 +7,23 @@ trap 'rm -rf "$temporary"' EXIT HUP INT TERM
 
 mkdir "$temporary/bin"
 
-# The single-quoted expressions belong to the generated fake curl script.
-# shellcheck disable=SC2016
-printf '%s\n' '#!/bin/sh' \
-  'case "$*" in' \
-  '  *--proxy*mcp.exa.ai*)' \
-  '    printf "event: message\\ndata: %s\\n\\n%s" "${FAKE_EXA_BODY:-{\"jsonrpc\":\"2.0\",\"result\":{\"protocolVersion\":\"2025-06-18\",\"serverInfo\":{\"name\":\"fake\"}}}}" "${FAKE_PROXY_STATUS:-200}"' \
-  '    ;;' \
-  '  *--proxy*oauth-protected-resource*)' \
-  '    printf "%s\\n%s" "${FAKE_TINYFISH_BODY:-{\"resource\":\"https://agent.tinyfish.ai/mcp\",\"authorization_servers\":[\"https://clerk.tinyfish.ai\"]}}" "${FAKE_PROXY_STATUS:-200}"' \
-  '    ;;' \
-  '  *mcp.exa.ai*)' \
-  '    printf "event: message\\ndata: %s\\n\\n%s" "${FAKE_EXA_BODY:-{\"protocolVersion\":\"2025-06-18\"}}" "${FAKE_EXA_STATUS:-200}"' \
-  '    ;;' \
-  '  *mcp.context7.com*)' \
-  '    printf "event: message\\ndata: {\"jsonrpc\":\"2.0\",\"result\":{\"protocolVersion\":\"2025-06-18\",\"serverInfo\":{\"name\":\"fake\"}}}\\n\\n200"' \
-  '    ;;' \
-  '  *oauth-protected-resource*)' \
-  '    printf "%s\\n%s" "${FAKE_TINYFISH_BODY:-{\"resource\":\"https://agent.tinyfish.ai/mcp\",\"authorization_servers\":[\"https://clerk.tinyfish.ai\"]}}" "${FAKE_TINYFISH_STATUS:-200}"' \
-  '    ;;' \
-  '  *--proxy*) printf "%s" "${FAKE_PROXY_STATUS:-200}" ;;' \
-  '  *) printf "%s" "${FAKE_JINA_STATUS:-200}" ;;' \
-  'esac' > "$temporary/bin/curl"
+# Strict JSON fixtures; braces inside shell default expressions can corrupt JSON.
+cat > "$temporary/bin/curl" <<'CURL'
+#!/bin/sh
+exa_body=${FAKE_EXA_BODY:-}
+[ -n "$exa_body" ] || exa_body='{"protocolVersion":"2025-06-18"}'
+tinyfish_body=${FAKE_TINYFISH_BODY:-}
+[ -n "$tinyfish_body" ] || tinyfish_body='{"resource":"https://agent.tinyfish.ai/mcp","authorization_servers":["https://clerk.tinyfish.ai"]}'
+case "$*" in
+  *--proxy*mcp.exa.ai*) printf 'event: message\ndata: %s\n\n%s' "$exa_body" "${FAKE_PROXY_STATUS:-200}" ;;
+  *--proxy*oauth-protected-resource*) printf '%s\n%s' "$tinyfish_body" "${FAKE_PROXY_STATUS:-200}" ;;
+  *mcp.exa.ai*) printf 'event: message\ndata: %s\n\n%s' "$exa_body" "${FAKE_EXA_STATUS:-200}" ;;
+  *mcp.context7.com*) printf 'event: message\ndata: {"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-06-18","serverInfo":{"name":"fake"}}}\n\n200' ;;
+  *oauth-protected-resource*) printf '%s\n%s' "$tinyfish_body" "${FAKE_TINYFISH_STATUS:-200}" ;;
+  *--proxy*) printf '%s' "${FAKE_PROXY_STATUS:-200}" ;;
+  *) printf '%s' "${FAKE_JINA_STATUS:-200}" ;;
+esac
+CURL
 chmod +x "$temporary/bin/curl"
 
 # The single-quoted expressions belong to the generated fake scutil script.
@@ -58,7 +53,7 @@ FAKE_EXA_STATUS=200 FAKE_EXA_BODY='{"protocolVersion":"2025-06-18"}' run_doctor
 test "$status" -eq 2
 grep -q 'invalid MCP initialize response' "$temporary/output"
 
-valid_exa_body='{"jsonrpc":"2.0","result":{"protocolVersion":"2025-06-18","serverInfo":{"name":"fake"}}}'
+valid_exa_body='{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-06-18","serverInfo":{"name":"fake"}}}'
 FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" run_doctor
 test "$status" -eq 0
 grep -q 'OK   Exa MCP' "$temporary/output"

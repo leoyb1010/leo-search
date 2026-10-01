@@ -8,9 +8,9 @@ from codex_probe import isolated_args, summarize
 class CodexProbeTest(unittest.TestCase):
     def test_isolation_disables_other_plugins_without_changing_search(self):
         args = isolated_args('[plugins."leo-search@personal"]\nenabled=true\n[plugins."other@personal"]\nenabled=true\n[mcp_servers.browser]\ncommand="browser"\n')
-        self.assertIn('plugins.other@personal.enabled=false', args)
-        self.assertIn('mcp_servers.browser.enabled=false', args)
-        self.assertNotIn('plugins.leo-search@personal.enabled=false', args)
+        self.assertIn('plugins."other@personal".enabled=false', args)
+        self.assertIn('mcp_servers."browser".enabled=false', args)
+        self.assertNotIn('plugins."leo-search@personal".enabled=false', args)
 
     def test_oauth_metadata_without_tools_is_not_ready(self):
         rows = summarize([{'name': 'leo-search-tinyfish', 'authStatus': 'oAuth', 'tools': {}}], True)

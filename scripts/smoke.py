@@ -10,6 +10,7 @@ import re
 import subprocess
 import time
 from request_budget import RequestBudget
+from protocol_check import messages
 
 ROOT = Path(__file__).resolve().parents[1]
 ENDPOINTS = {"exa": "https://mcp.exa.ai/mcp", "context7": "https://mcp.context7.com/mcp",
@@ -24,7 +25,7 @@ def http(url: str, payload: dict | None = None) -> str:
 
 def fetch(url: str, payload: dict | None = None, proxy: str | None = None) -> str:
     command = [str(ROOT / "scripts/with_proxy.sh"), "curl", "--fail-with-body",
-               "--silent", "--show-error", "--connect-timeout", "5", "--max-time", "20", "--write-out", "\n%{http_code}",
+               "--silent", "--show-error", "--connect-timeout", "5", "--max-time", "20", "--max-filesize", "8388608", "--write-out", "\n%{http_code}",
                "-H", "Accept: " + ("application/json, text/event-stream" if payload is not None else "text/plain")]
     if payload is not None:
         command += ["-H", "Content-Type: application/json", "--data-binary", json.dumps(payload)]
@@ -50,25 +51,41 @@ def fetch(url: str, payload: dict | None = None, proxy: str | None = None) -> st
 
 def rpc(route: str, method: str, params: dict) -> dict:
     raw = http(ENDPOINTS[route], {"jsonrpc": "2.0", "id": 1, "method": method, "params": params})
-    messages = [line[5:].strip() for line in raw.splitlines() if line.startswith("data:")]
-    data = json.loads(messages[-1] if messages else raw)
-    if "error" in data:
-        raise RuntimeError("MCP protocol error")
-    result = data.get("result", {})
+    if len(raw) > 8 * 1024 * 1024:
+        raise RuntimeError("MCP response exceeds size limit")
+    frames = messages(raw)
+    replies = [frame for frame in frames if isinstance(frame, dict) and frame.get('id') == 1]
+    if not replies:
+        raise RuntimeError("MCP response ID missing or mismatched")
+    data = replies[-1]
+    result = data.get("result")
+    if data.get('jsonrpc') != '2.0' or "error" in data or not isinstance(result, dict):
+        raise RuntimeError("Invalid MCP response envelope")
     if result.get("isError"):
         raise RuntimeError("MCP tool returned isError")
     return result
 
 
 def text_content(result: dict) -> str:
-    return "\n".join(c.get("text", "") for c in result.get("content", []) if c.get("type") == "text")
+    content = result.get("content", [])
+    if not isinstance(content, list) or any(not isinstance(c, dict) for c in content):
+        raise RuntimeError("Invalid MCP content array")
+    text = []
+    for item in content:
+        if item.get('type') == 'text':
+            if not isinstance(item.get('text'), str):
+                raise RuntimeError("Invalid MCP text content")
+            text.append(item['text'])
+    return "\n".join(text)
 
 
 def reader_content(raw: str, url: str) -> str:
     messages = [line[5:].strip() for line in raw.splitlines() if line.startswith("data:")]
     value = messages[-1] if messages else raw
-    if value.lstrip().startswith("{"):
+    if value.lstrip().startswith(("{", "[")):
         parsed = json.loads(value)
+        if not isinstance(parsed, dict):
+            raise RuntimeError("Jina returned an invalid response shape")
         data = parsed.get("data", parsed)
         if not isinstance(data, dict) or not isinstance(data.get("content"), str):
             raise RuntimeError("Jina returned no readable content")
@@ -92,6 +109,8 @@ def probe(case: dict) -> dict:
             content = reader_content(http("https://r.jina.ai/" + case["url"]), case["url"])
         else:
             tools = rpc(route, "tools/list", {}).get("tools", [])
+            if not isinstance(tools, list) or len(tools) > 1000 or any(not isinstance(t, dict) or not isinstance(t.get('name'), str) for t in tools):
+                raise RuntimeError("Invalid MCP tool inventory")
             row["tools_visible"] = len(tools)
             names = {t["name"] for t in tools}
             if route == "exa":

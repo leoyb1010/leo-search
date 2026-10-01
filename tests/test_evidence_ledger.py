@@ -23,7 +23,7 @@ class EvidenceLedgerTest(unittest.TestCase):
     def test_normalizes_and_deduplicates_urls(self) -> None:
         result = self.run_ledger(
             [
-                {"url": "HTTPS://Example.com/story/?utm_source=x&id=7#top", "title": "First"},
+                {"url": "HTTPS://Example.com/story?utm_source=x&id=7#top", "title": "First"},
                 {"url": "https://example.com/story?id=7", "title": "Duplicate"},
             ]
         )
