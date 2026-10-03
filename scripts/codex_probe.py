@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 import json
+from protocol_check import load_json
 import os
 from pathlib import Path
 import re
@@ -64,7 +65,7 @@ class RpcPeer:
                 if not line.strip():
                     continue
                 try:
-                    message = json.loads(line)
+                    message = load_json(line)
                 except (ValueError, UnicodeError):
                     raise RuntimeError('invalid native RPC frame') from None
                 if not isinstance(message, dict):

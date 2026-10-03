@@ -12,7 +12,7 @@ command -v git >/dev/null 2>&1 || {
 
 mkdir -p "$parent"
 if [ -e "$destination" ]; then
-  if [ ! -d "$destination/.git" ]; then
+  if [ ! -e "$destination/.git" ] || ! git -C "$destination" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     echo "$destination exists and is not a Git checkout; refusing to overwrite it." >&2
     exit 73
   fi

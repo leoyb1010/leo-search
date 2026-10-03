@@ -1,6 +1,6 @@
 # Round 1 — comprehensive CLI/provider/operator audit
 
-Status: awaiting independent review, not closed. Baseline: remote accepted 8e631d49b30e19b449eaaf26e5fe3f44e20bee3d. Remote main/v1.4 is an ancestor three commits behind; unpublished Studio v1.6 is excluded.
+Status: independently accepted in the declared synthetic CLI/protocol/operator scope. Exact published commit 1f72d02486e3d88a31b8ea9a93d25e590aee1fc8, CI run 37134616366 completed successfully. Baseline: remote accepted 8e631d49b30e19b449eaaf26e5fe3f44e20bee3d. Remote main/v1.4 is an ancestor three commits behind; uncommitted external working copies are excluded.
 
 ## Full matrix performed afresh
 

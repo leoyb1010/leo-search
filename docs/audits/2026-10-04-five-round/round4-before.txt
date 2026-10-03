@@ -1,0 +1,3 @@
+duplicate contradictory response ID accepted: True
+duplicate plugin lists preserve original: False
+keep-me registration remains: False

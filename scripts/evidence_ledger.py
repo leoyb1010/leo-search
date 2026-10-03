@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from protocol_check import load_json
 import sys
 from collections import OrderedDict
 from urllib.parse import unquote_to_bytes, urlsplit, urlunsplit
@@ -114,7 +115,7 @@ def main() -> int:
         for line_number, line in enumerate(sys.stdin, 1):
             if not line.strip():
                 continue
-            value = json.loads(line)
+            value = load_json(line)
             if not isinstance(value, dict):
                 raise ValueError(f"line {line_number} is not a JSON object")
             item = normalize(value)

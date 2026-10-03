@@ -18,7 +18,10 @@ if [ "$json" -eq 1 ]; then
     exit 69
   fi
   temporary=$(mktemp "${TMPDIR:-/tmp}/leo-search-doctor.XXXXXX") || exit 70
-  trap 'rm -f "$temporary"' EXIT HUP INT TERM
+  trap 'rm -f "$temporary"' EXIT
+  trap 'exit 129' HUP
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
   set +e
   if [ "$deep" -eq 1 ]; then
     "$0" --deep >"$temporary" 2>&1

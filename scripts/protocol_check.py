@@ -1,8 +1,43 @@
 #!/usr/bin/env python3
 """Validate doctor responses without printing provider payloads or credentials."""
 import json
+import math
 import sys
 from urllib.parse import urlsplit
+
+
+def load_json(raw):
+    """Reject non-finite numbers, invalid Unicode and deeply nested provider data."""
+    def invalid_constant(_value):
+        raise ValueError("JSON requires finite numbers; use null or a finite value")
+    def unique_object(pairs):
+        result = {}
+        for key, item in pairs:
+            if key in result:
+                raise ValueError("JSON object contains duplicate fields; keep one value per field")
+            result[key] = item
+        return result
+    try:
+        value = json.loads(raw, parse_constant=invalid_constant, object_pairs_hook=unique_object)
+    except RecursionError:
+        raise ValueError("JSON nesting exceeds 64 levels; flatten nested metadata") from None
+    pending = [(value, 0)]
+    while pending:
+        item, depth = pending.pop()
+        if depth > 64:
+            raise ValueError("JSON nesting exceeds 64 levels; flatten nested metadata")
+        if isinstance(item, dict):
+            pending.extend((child, depth + 1) for pair in item.items() for child in pair)
+        elif isinstance(item, list):
+            pending.extend((child, depth + 1) for child in item)
+        elif isinstance(item, float) and not math.isfinite(item):
+            raise ValueError("JSON requires finite numbers; use null or a finite value")
+        elif isinstance(item, str):
+            try:
+                item.encode('utf-8')
+            except UnicodeError:
+                raise ValueError("JSON contains invalid Unicode; replace unpaired surrogate escapes") from None
+    return value
 
 
 def wire_lines(raw):
@@ -13,12 +48,12 @@ def wire_lines(raw):
 def messages(raw):
     raw = raw.removeprefix('\ufeff')
     if raw.lstrip().startswith('{'):
-        return [json.loads(raw)]
+        return [load_json(raw)]
     values, data = [], []
     for line in wire_lines(raw) + ['']:
         if not line:
             if data:
-                values.append(json.loads('\n'.join(data)))
+                values.append(load_json('\n'.join(data)))
                 data = []
         elif line.startswith('data:'):
             data.append(line[5:].lstrip(' '))
@@ -44,7 +79,7 @@ def valid_initialize(raw):
 
 def valid_oauth_metadata(raw):
     try:
-        value = json.loads(raw)
+        value = load_json(raw)
         if not isinstance(value, dict) or value.get('resource') != 'https://agent.tinyfish.ai/mcp':
             return False
         servers = value.get('authorization_servers')

@@ -1,0 +1,48 @@
+test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly (test_five_round_wire_recovery.WireRecoveryTests.test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly) ...
+  test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly (test_five_round_wire_recovery.WireRecoveryTests.test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly) (value='{"url":"https://example.com","title":"\\ud800"}') ... FAIL
+  test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly (test_five_round_wire_recovery.WireRecoveryTests.test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly) (value='{"url":"https://example.com","score":NaN}') ... FAIL
+  test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly (test_five_round_wire_recovery.WireRecoveryTests.test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly) (value='{"url":"https://example.com","score":Infinity}') ... FAIL
+  test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly (test_five_round_wire_recovery.WireRecoveryTests.test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly) (value='{"url":"https://example.com","meta":[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[') ... FAIL
+test_deep_corrupt_marketplace_is_preserved_with_actionable_exit (test_five_round_wire_recovery.WireRecoveryTests.test_deep_corrupt_marketplace_is_preserved_with_actionable_exit) ... ok
+test_deep_protocol_frame_becomes_invalid_not_unhandled_recursion (test_five_round_wire_recovery.WireRecoveryTests.test_deep_protocol_frame_becomes_invalid_not_unhandled_recursion) ... ok
+
+======================================================================
+FAIL: test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly (test_five_round_wire_recovery.WireRecoveryTests.test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly) (value='{"url":"https://example.com","title":"\\ud800"}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tests/test_five_round_wire_recovery.py", line 22, in test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly
+    self.assertEqual(p.returncode,2);self.assertEqual(p.stdout,'');self.assertNotIn('Traceback',p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2
+
+======================================================================
+FAIL: test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly (test_five_round_wire_recovery.WireRecoveryTests.test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly) (value='{"url":"https://example.com","score":NaN}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tests/test_five_round_wire_recovery.py", line 22, in test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly
+    self.assertEqual(p.returncode,2);self.assertEqual(p.stdout,'');self.assertNotIn('Traceback',p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2
+
+======================================================================
+FAIL: test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly (test_five_round_wire_recovery.WireRecoveryTests.test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly) (value='{"url":"https://example.com","score":Infinity}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tests/test_five_round_wire_recovery.py", line 22, in test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly
+    self.assertEqual(p.returncode,2);self.assertEqual(p.stdout,'');self.assertNotIn('Traceback',p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2
+
+======================================================================
+FAIL: test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly (test_five_round_wire_recovery.WireRecoveryTests.test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly) (value='{"url":"https://example.com","meta":[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tests/test_five_round_wire_recovery.py", line 22, in test_bad_unicode_or_nonfinite_metadata_rejects_whole_ledger_cleanly
+    self.assertEqual(p.returncode,2);self.assertEqual(p.stdout,'');self.assertNotIn('Traceback',p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.192s
+
+FAILED (failures=4)

@@ -1,0 +1,6 @@
+Actual pre-fix Ctrl-C process-group reproduction with a sleeping fake curl:
+provider fixture started: True
+returncode: 1
+stdout: empty
+stderr: Traceback; FileNotFoundError opening the JSON doctor's already-removed temporary report
+No real provider or account was contacted.

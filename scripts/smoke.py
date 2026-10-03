@@ -11,7 +11,7 @@ import subprocess
 import time
 import sys
 from request_budget import RequestBudget
-from protocol_check import messages, wire_lines
+from protocol_check import load_json, messages, wire_lines
 from report_output import write_report
 from evidence_ledger import canonical_url
 
@@ -89,7 +89,7 @@ def reader_document(raw: str, url: str) -> tuple[str, list[str]]:
     parsed = None
     structured = outer.startswith(("{", "["))
     if structured:
-        parsed = json.loads(outer)
+        parsed = load_json(outer)
     elif (outer.startswith(('event:', 'data:', ':')) and all(
             not line or line.startswith(('event:', 'data:', 'id:', 'retry:', ':'))
             for line in wire_lines(outer))):

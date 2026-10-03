@@ -1,0 +1,29 @@
+{
+  "round": 3,
+  "status": "accepted-local-synthetic-scope",
+  "code_commit": null,
+  "code_tree": "f7600d7fcf06b31bb2f7a11f48004342f386bbc7",
+  "CI_run": null,
+  "CI_conclusion": "not-published",
+  "fresh_unit_and_cli_tests_passed": 97,
+  "coverage": {
+    "research_user": "default/scoped/20-case retrieval/fallback/budget/errors/retry",
+    "provider": "Exa/Context7/Jina protocol fixtures; native TinyFish single-call fixture",
+    "analyst": "JSONL links/dedup/provenance/contradictions/input rejection",
+    "operator": "doctor/bootstrap/update/portable/marketplace/proxy/native process/output recovery",
+    "presentation": "terminal Unicode/stdout/stderr/JSON/help/exit statuses",
+    "GUI_motion_layout": "not applicable; no GUI exists"
+  },
+  "evidence": [
+    "round3.md",
+    "round3-tests.txt",
+    "round3-doctor.txt",
+    "round3-before.txt"
+  ],
+  "limits": [
+    "No live provider or OAuth verification",
+    "No real user installation",
+    "No account-bound external research",
+    "No measured semantic quality of advanced research modes"
+  ]
+}

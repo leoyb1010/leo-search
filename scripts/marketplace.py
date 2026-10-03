@@ -3,6 +3,7 @@
 from __future__ import annotations
 import fcntl
 import json
+from protocol_check import load_json
 import os
 from pathlib import Path
 import shutil
@@ -25,7 +26,7 @@ def update_marketplace(path: Path) -> str:
     with path.with_name(path.name + '.leo-search.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         current = path.read_text(encoding='utf-8') if path.exists() else ''
-        data = json.loads(current) if current else {'name': 'personal', 'interface': {'displayName': 'Personal'}, 'plugins': []}
+        data = load_json(current) if current else {'name': 'personal', 'interface': {'displayName': 'Personal'}, 'plugins': []}
         if not isinstance(data, dict):
             raise ValueError('marketplace must be a JSON object')
         name = data.setdefault('name', 'personal')
