@@ -151,3 +151,8 @@ Fast normally starts with one useful query/read and a working allowance of four 
 The runner counts **network requests**, not paid API units or tokens. Reuse is process-local; no cross-user or stale persistent cache is created. Benchmark checks measure retrieval contracts (content, source, topic), not answer-level accuracy. See `benchmarks/README.md` for measured results and limits.
 
 For plugin updates, use the installed plugin-creator cachebuster/validation helpers and `codex plugin add leo-search@personal` against the existing local marketplace. The historical 1.3.0 working copy is preserved in Git before 1.4.0 changes.
+
+If a `--output` destination cannot be saved, the probe keeps the complete JSON on
+stdout and exits with status 2. Existing report files are preserved on write
+failure; fix the destination or save stdout instead of repeating retrieval.
+Symbolic-link report destinations are rejected explicitly.

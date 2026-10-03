@@ -9,8 +9,10 @@ from pathlib import Path
 import re
 import subprocess
 import time
+import sys
 from request_budget import RequestBudget
 from protocol_check import messages, wire_lines
+from report_output import write_report
 from evidence_ledger import canonical_url
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -224,8 +226,12 @@ def main() -> int:
                              "Account-bound social sources and answer-level accuracy are not measured."]}
     rendered = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     if args.output:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(rendered)
+        try:
+            write_report(args.output, rendered)
+        except OSError:
+            print(rendered)
+            print("Could not save report; complete results are on stdout. Existing output was preserved.", file=sys.stderr)
+            return 2
     print(rendered)
     return 0 if report["passed"] == len(rows) else 2
 

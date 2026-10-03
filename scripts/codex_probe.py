@@ -13,6 +13,7 @@ import sys
 import tempfile
 import time
 from urllib.parse import urlsplit
+from report_output import write_report
 from evidence_ledger import canonical_url
 from smoke import text_content
 try:
@@ -115,8 +116,12 @@ def summarize(servers: list[dict], oauth_rejected: bool = False) -> list[dict]:
 def emit_report(report, output):
     rendered = json.dumps(report, ensure_ascii=False, indent=2) + '\n'
     if output:
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(rendered)
+        try:
+            write_report(output, rendered)
+        except OSError:
+            print(rendered)
+            print("Could not save report; complete results are on stdout. Existing output was preserved.", file=sys.stderr)
+            return 2
     print(rendered)
     return 2 if report.get('error') or any(r['stage'] == 'unavailable' for r in report['servers']) else 0
 
