@@ -111,4 +111,20 @@ labels = {route["label"] for route in report["routes"]}
 assert {"Exa MCP", "Context7 MCP", "TinyFish MCP", "Jina Reader"} <= labels
 PY
 
+# Controller diagnostics need process identity, never credential-bearing argv.
+cat > "$temporary/bin/ps" <<'PS'
+#!/bin/sh
+case "$*" in
+  *args=*) printf '%s\n' '4242 1 00:01 2048 node /tmp/playwright-mcp --token=SYNTHETIC_PRIVATE_ARG' ;;
+esac
+PS
+chmod +x "$temporary/bin/ps"
+FAKE_EXA_STATUS=200 FAKE_EXA_BODY="$valid_exa_body" FAKE_TINYFISH_STATUS=200 FAKE_JINA_STATUS=200 FAKE_SYSTEM_PROXY=0 run_doctor
+test "$status" -eq 0
+grep -q '4242' "$temporary/output"
+if grep -q 'SYNTHETIC_PRIVATE_ARG' "$temporary/output"; then
+  echo 'resource diagnostics leaked controller arguments' >&2
+  exit 1
+fi
+
 echo 'doctor tests passed'

@@ -10,7 +10,7 @@ import re
 import subprocess
 import time
 from request_budget import RequestBudget
-from protocol_check import messages
+from protocol_check import messages, wire_lines
 from evidence_ledger import canonical_url
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,9 +57,9 @@ def rpc(route: str, method: str, params: dict) -> dict:
     frames = messages(raw)
     replies = [frame for frame in frames if isinstance(frame, dict)
                and type(frame.get('id')) is int and frame['id'] == 1]
-    if not replies:
-        raise RuntimeError("MCP response ID missing or mismatched")
-    data = replies[-1]
+    if len(replies) != 1:
+        raise RuntimeError("MCP response ID missing, mismatched or ambiguous")
+    data = replies[0]
     result = data.get("result")
     if data.get('jsonrpc') != '2.0' or "error" in data or not isinstance(result, dict):
         raise RuntimeError("Invalid MCP response envelope")
@@ -83,14 +83,14 @@ def text_content(result: dict) -> str:
 
 def reader_document(raw: str, url: str) -> tuple[str, list[str]]:
     """Separate Reader-owned provenance from untrusted extracted page text."""
-    outer = raw.lstrip()
+    outer = raw.removeprefix("\ufeff").lstrip()
     parsed = None
     structured = outer.startswith(("{", "["))
     if structured:
         parsed = json.loads(outer)
     elif (outer.startswith(('event:', 'data:', ':')) and all(
             not line or line.startswith(('event:', 'data:', 'id:', 'retry:', ':'))
-            for line in outer.replace('\r\n', '\n').split('\n'))):
+            for line in wire_lines(outer))):
         # Classify only the outer wire envelope. A Markdown page may itself
         # contain data: examples, which are never transport metadata.
         frames = messages(outer)
@@ -111,7 +111,7 @@ def reader_document(raw: str, url: str) -> tuple[str, list[str]]:
     # Stop on body text: a page can itself contain forged URL Source lines.
     sources = []
     body_boundary = False
-    for line in raw.splitlines():
+    for line in raw.removeprefix('\ufeff').splitlines():
         if line.startswith('Markdown Content:'):
             body_boundary = True
             break

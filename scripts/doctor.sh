@@ -281,7 +281,7 @@ headless_processes() {
 automation_controllers() {
   ps -axo pid=,ppid=,etime=,rss=,args= 2>/dev/null | awk '
     BEGIN { IGNORECASE=1 }
-    /playwright-mcp|@playwright\/mcp|patchright|crawl4ai/ && !/awk/ { print }
+    /playwright-mcp|@playwright\/mcp|patchright|crawl4ai/ && !/awk/ { print $1, $2, $3, $4, "browser-capable-controller [arguments redacted]" }
   '
 }
 
@@ -311,7 +311,7 @@ fi
 
 controllers=$(automation_controllers)
 if [ -n "$controllers" ]; then
-  printf 'INFO browser-capable controller exists but has no browser child:\n%s\n' "$controllers"
+  printf 'INFO browser-capable controller detected (arguments redacted):\n%s\n' "$controllers"
 else
   echo "OK   no browser-automation controller process"
 fi

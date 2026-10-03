@@ -5,11 +5,17 @@ import sys
 from urllib.parse import urlsplit
 
 
+def wire_lines(raw):
+    """SSE permits CR, LF, CRLF and one initial UTF-8 BOM (WHATWG §9.2.5)."""
+    return raw.removeprefix('\ufeff').replace('\r\n', '\n').replace('\r', '\n').split('\n')
+
+
 def messages(raw):
+    raw = raw.removeprefix('\ufeff')
     if raw.lstrip().startswith('{'):
         return [json.loads(raw)]
     values, data = [], []
-    for line in raw.replace('\r\n', '\n').split('\n') + ['']:
+    for line in wire_lines(raw) + ['']:
         if not line:
             if data:
                 values.append(json.loads('\n'.join(data)))
@@ -23,9 +29,9 @@ def valid_initialize(raw):
     try:
         matches = [value for value in messages(raw) if isinstance(value, dict)
                    and type(value.get('id')) is int and value['id'] == 1]
-        if not matches:
+        if len(matches) != 1:
             return False
-        value = matches[-1]
+        value = matches[0]
         result = value.get('result')
         if value.get('jsonrpc') != '2.0' or 'error' in value or not isinstance(result, dict):
             return False
